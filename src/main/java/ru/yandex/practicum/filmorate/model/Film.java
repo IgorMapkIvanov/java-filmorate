@@ -1,24 +1,21 @@
 package ru.yandex.practicum.filmorate.model;
 
 
-import lombok.Data;
+import lombok.*;
 
 import javax.validation.constraints.*;
 
 import java.time.LocalDate;
 
-
 @Data
+@AllArgsConstructor
 public class Film {
-
-    private long id;
-    @NotBlank(message = "название фильма не должно быть пустым")
-    private String name;
-    @Size(max = 200, message = "описание фильма не должно быть больше 200 символов")
-    private String description;
-    @NotNull(message = "дата выхода не должна быть пустой")
-    private LocalDate releaseDate;
-    @NotNull(message = "длительность фильма не должна быть пустой")
-    @Min(value = 1)
-    private long duration;
+    protected Integer id;
+    @NotBlank(message = "movie title cannot be empty")
+    protected String name;
+    @Size(max = 200, message = "Movie description must not exceed 200 characters")
+    protected String description;
+    @NotNull(message = "movie release date must not be empty")
+    protected LocalDate releaseDate;
+    protected Integer duration;
 }

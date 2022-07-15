@@ -7,9 +7,9 @@ import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 @Data
+@AllArgsConstructor
 public class User {
-
-    private Long id;
+    protected Integer id;
     @Email
     private String email;
     @NotBlank
