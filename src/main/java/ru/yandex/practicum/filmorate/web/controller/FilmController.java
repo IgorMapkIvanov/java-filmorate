@@ -23,7 +23,6 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> getStorage() {
-        log.info("List of {} films sent.", storage.size());
         return storage.values();
     }
 

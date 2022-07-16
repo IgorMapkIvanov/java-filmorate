@@ -23,7 +23,6 @@ public class UserController {
     }
     @GetMapping
     public Collection<User> getStorage() {
-        log.info("List of {} user sent.", storage.size());
         return storage.values();
     }
 
