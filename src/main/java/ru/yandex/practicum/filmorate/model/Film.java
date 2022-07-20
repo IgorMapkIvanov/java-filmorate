@@ -7,15 +7,19 @@ import javax.validation.constraints.*;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
 @AllArgsConstructor
-public class Film {
-    protected Integer id;
-    @NotBlank(message = "movie title cannot be empty")
+public class Film implements ModelType{
+    protected Long id;
+    @NotBlank(message = "Movie title cannot be empty")
     protected String name;
     @Size(max = 200, message = "Movie description must not exceed 200 characters")
     protected String description;
-    @NotNull(message = "movie release date must not be empty")
+    @NotNull(message = "Movie release date must not be empty")
     protected LocalDate releaseDate;
     protected Integer duration;
 }

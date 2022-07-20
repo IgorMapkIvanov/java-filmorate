@@ -7,10 +7,14 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
 @AllArgsConstructor
-public class User {
-    protected Integer id;
+public class User implements ModelType {
+    protected Long id;
     @Email
     private String email;
     @NotBlank
