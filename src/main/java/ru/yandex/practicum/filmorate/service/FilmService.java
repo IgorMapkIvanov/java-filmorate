@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.ModelStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,28 +17,28 @@ import java.util.Collection;
 public class FilmService {
     private Long id = 0L;
 
-    private final FilmStorage filmStorage;
+    private final ModelStorage<Film> filmStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(InMemoryFilmStorage filmStorage) {
         this.filmStorage = filmStorage;
     }
 
     public Collection<Film> getFilms() {
-        return filmStorage.getFilms();
+        return filmStorage.getModels();
     }
 
     public Film addFilm(Film film) {
         film.setId(++id);
         validation(film);
         log.info("Add new film into storage. {}", film);
-        return filmStorage.addFilm(film);
+        return filmStorage.addModel(film);
     }
 
     public Film updateFilm(Film film) {
         validation(film);
         log.info("Film with Id = {} is update.", film.getId());
-        return filmStorage.updateFilm(film);
+        return filmStorage.updateModel(film);
     }
 
     public void validation(Film film) {

@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.ModelStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -14,30 +15,30 @@ import java.util.Collection;
 @Service
 @Slf4j
 public class UserService {
-    private final UserStorage userStorage;
+    private final ModelStorage<User> userStorage;
 
     private Long id = 0L;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(InMemoryUserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
     public Collection<User> getUsers() {
-        return userStorage.getUsers();
+        return userStorage.getModels();
     }
 
     public User addUser(User user) {
         user.setId(++id);
         validation(user);
         log.info("Add new user into storage. {}", user);
-        return userStorage.addUser(user);
+        return userStorage.addModel(user);
     }
 
     public User updateUser(User user) {
         validation(user);
         log.info("User with Id = {} is update.", user.getId());
-        return userStorage.updateUser(user);
+        return userStorage.updateModel(user);
     }
 
     public void validation(User user) {
