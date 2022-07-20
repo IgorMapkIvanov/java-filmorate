@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.ModelStorage;
@@ -43,12 +44,12 @@ public class FilmService {
 
     public void validation(Film film) {
         if (film.getId() <= 0){
-            log.info("Uncorrected Id in request: {}}.", film.getId());
-            throw new ValidationException(String.format("Uncorrected Id in request: %s.", film.getId()));
+            log.info("Uncorrected film Id in request: {}}.", film.getId());
+            throw new ValidationException(String.format("Uncorrected film Id in request: %s.", film.getId()));
         }
         if(!(filmStorage.getStorage().containsKey(film.getId())) && !film.getId().equals(this.id)){
-            log.info("Id in request: {}, not found.", film.getId());
-            throw new ValidationException(String.format("Id in request: %s, not found.", film.getId()));
+            log.info("Film with Id in request: {}, not found.", film.getId());
+            throw new NotFoundException(String.format("Film with Id in request: %s, not found.", film.getId()));
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))){
             log.info("Release data can not early by 28.12.1895. Request release data {}",

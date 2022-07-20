@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.ModelStorage;
@@ -43,12 +44,12 @@ public class UserService {
 
     public void validation(User user) {
         if (user.getId() <= 0){
-            log.info("Uncorrected Id in request: {}}.", user.getId());
-            throw new ValidationException(String.format("Uncorrected Id in request: %s.", user.getId()));
+            log.info("Uncorrected user Id in request: {}}.", user.getId());
+            throw new ValidationException(String.format("Uncorrected user Id in request: %s.", user.getId()));
         }
         if(!(userStorage.getStorage().containsKey(user.getId())) && !user.getId().equals(this.id)){
-            log.info("Id in request: {}, not found.", user.getId());
-            throw new ValidationException(String.format("Id in request: %s, not found.", user.getId()));
+            log.info("User with Id in request: {}, not found.", user.getId());
+            throw new NotFoundException(String.format("User with Id in request: %s, not found.", user.getId()));
         }
         if(user.getName().isBlank()){
             user.setName(user.getLogin());
