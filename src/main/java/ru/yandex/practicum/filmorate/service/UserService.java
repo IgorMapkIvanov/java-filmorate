@@ -33,10 +33,6 @@ public class UserService {
             log.info("Uncorrected user Id in request: {}}.", user.getId());
             throw new ValidationException(String.format("Uncorrected user Id in request: %s.", user.getId()));
         }
-        if(!(userStorage.getStorage().containsKey(user.getId())) && !user.getId().equals(this.id + 1)){
-            log.info("User with Id in request: {}, not found.", user.getId());
-            throw new NotFoundException(String.format("User with Id in request: %s, not found.", user.getId()));
-        }
         if(user.getName().isBlank()){
             user.setName(user.getLogin());
         }
@@ -53,9 +49,8 @@ public class UserService {
     }
 
     public User addUser(User user) {
-        user.setId(this.id + 1);
+        user.setId(++this.id);
         validation(user);
-        ++id;
         log.info("Add new user into storage. {}", user);
         return userStorage.addModel(user);
     }
