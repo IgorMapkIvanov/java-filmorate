@@ -16,7 +16,7 @@ class FilmServiceValidationTest {
     @Test
     void shouldWhenIdIsNegative() {
         FilmService filmService = new FilmService(new InMemoryFilmStorage());
-        Film film = new Film(-1L, "f1", "fd1", LocalDate.of(1995, 12, 28), 130);
+        Film film = new Film(-1L, "f1", "fd1", LocalDate.of(1995, 12, 28), 130, null);
 
         assertThrows(ValidationException.class, () -> filmService.validation(film));
     }
@@ -24,7 +24,7 @@ class FilmServiceValidationTest {
     @Test
     void shouldWhenIdNotFoundInStorage() {
         FilmService filmService = new FilmService(new InMemoryFilmStorage());
-        Film film1 = new Film(1L, "f1", "fd1", LocalDate.of(1995, 12, 28), 130);
+        Film film1 = new Film(1L, "f1", "fd1", LocalDate.of(1995, 12, 28), 130, null);
 
         assertThrows(ValidationException.class, () -> filmService.validation(film1));
     }
@@ -32,7 +32,7 @@ class FilmServiceValidationTest {
     @Test
     void shouldWhenReLeaseDataIsEarly28121895() {
         FilmService filmService = new FilmService(new InMemoryFilmStorage());
-        Film film = new Film(1L, "f1", "fd1", LocalDate.of(1895, 12, 2), 130);
+        Film film = new Film(1L, "f1", "fd1", LocalDate.of(1895, 12, 2), 130, null);
 
         assertThrows(ValidationException.class, () -> filmService.addFilm(film));
     }
@@ -40,10 +40,10 @@ class FilmServiceValidationTest {
     @Test
     void shouldWhenDurationIsNegative() {
         FilmService filmService = new FilmService(new InMemoryFilmStorage());
-        Film film1 = new Film(1L, "f1", "fd1", LocalDate.of(1995, 12, 28), 130);
+        Film film1 = new Film(1L, "f1", "fd1", LocalDate.of(1995, 12, 28), 130, null);
         filmService.addFilm(film1);
-        Film film2 = new Film(1L, "f1", "fd1", LocalDate.of(1995, 12, 27), 0);
-        Film film3 = new Film(1L, "f1", "fd1", LocalDate.of(1995, 12, 27), -1);
+        Film film2 = new Film(1L, "f1", "fd1", LocalDate.of(1995, 12, 27), 0, null);
+        Film film3 = new Film(1L, "f1", "fd1", LocalDate.of(1995, 12, 27), -1, null);
 
         assertThrows(ValidationException.class, () -> filmService.validation(film2));
         assertThrows(ValidationException.class, () -> filmService.validation(film3));

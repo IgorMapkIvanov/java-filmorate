@@ -6,6 +6,8 @@ import lombok.*;
 import javax.validation.constraints.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -22,4 +24,5 @@ public class Film implements ModelType{
     @NotNull(message = "Movie release date must not be empty")
     protected LocalDate releaseDate;
     protected Integer duration;
+    protected Set<Long> likes = new HashSet<>();
 }

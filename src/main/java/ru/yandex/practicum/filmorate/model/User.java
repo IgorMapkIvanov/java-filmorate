@@ -6,6 +6,8 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -16,10 +18,11 @@ import java.time.LocalDate;
 public class User implements ModelType {
     protected Long id;
     @Email
-    private String email;
+    protected String email;
     @NotBlank
     @Pattern(regexp = "^\\S*$")
-    private String login;
-    private String name;
-    private LocalDate birthday;
+    protected String login;
+    protected String name;
+    protected LocalDate birthday;
+    protected Set<Long> friendsId = new HashSet<>();
 }

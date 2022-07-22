@@ -19,18 +19,43 @@ public class UserController {
         this.userService = userService;
     }
 
+    // Get requests
     @GetMapping
     public Collection<User> getUsers() {
         return userService.getUsers();
     }
+    @GetMapping("/{id}")
+    public User userById(@PathVariable Long id){
+        return userService.userById(id);
+    }
+    @GetMapping("/{id}/friends")
+    public Set<User> userFriends(@PathVariable Long id){
+        return userService.userFriends(id);
+    }
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Set<User> searchMutualFriends(@PathVariable Long id, @PathVariable Long otherId){
+        return userService.searchMutualFriends(id, otherId);
+    }
 
+    // Post requests
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
         return userService.addUser(user);
     }
 
+    // Put requests
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         return userService.updateUser(user);
+    }
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId){
+        userService.addFriend(id, friendId);
+    }
+
+    //Delete requests
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void removeFriend(@PathVariable Long id, @PathVariable Long friendId){
+        userService.removeFriend(id, friendId);
     }
 }
