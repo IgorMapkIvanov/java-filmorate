@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,11 +101,11 @@ public class FilmService {
         }
     }
 
-    public Set<Film> getPopularFilms(Integer count) {
+    public List<Film> getPopularFilms(Integer count) {
         log.info("Send {} popular films", count);
-        return filmStorage.getStorage().values().stream()
-                .sorted(Comparator.comparingInt(o -> o.getLikes().size()))
+        return filmStorage.getModels().stream()
+                .sorted(Comparator.comparing(Film::getLikes, (o1, o2) -> o2.size() - o1.size()))
                 .limit(count)
-                .collect(Collectors.toUnmodifiableSet());
+                .collect(Collectors.toUnmodifiableList());
     }
 }

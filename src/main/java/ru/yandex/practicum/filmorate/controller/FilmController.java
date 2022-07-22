@@ -31,8 +31,8 @@ public class FilmController {
         return filmService.filmById(id);
     }
     @GetMapping("/popular")
-    public Set<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count){
-        return filmService.getPopularFilms(count);
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") String count){
+        return filmService.getPopularFilms(Integer.valueOf(count));
     }
 
     // Post requests
