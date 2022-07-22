@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -24,7 +25,7 @@ class UserServiceValidationTest {
         UserService userService = new UserService(new InMemoryUserStorage());
         User user = new User(2L, "u1@ya.ru", "u1", "un1",LocalDate.of(1995, 12, 28), null);
 
-        assertThrows(ValidationException.class, () -> userService.validation(user));
+        assertThrows(NotFoundException.class, () -> userService.validation(user));
     }
 
     @Test
