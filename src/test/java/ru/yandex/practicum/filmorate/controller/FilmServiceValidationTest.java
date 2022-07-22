@@ -23,14 +23,6 @@ class FilmServiceValidationTest {
     }
 
     @Test
-    void shouldWhenIdNotFoundInStorage() {
-        FilmService filmService = new FilmService(new InMemoryFilmStorage());
-        Film film1 = new Film(1L, "f1", "fd1", LocalDate.of(1995, 12, 28), 130, null);
-
-        assertThrows(NotFoundException.class, () -> filmService.validation(film1));
-    }
-
-    @Test
     void shouldWhenReLeaseDataIsEarly28121895() {
         FilmService filmService = new FilmService(new InMemoryFilmStorage());
         Film film = new Film(1L, "f1", "fd1", LocalDate.of(1895, 12, 2), 130, null);

@@ -55,10 +55,6 @@ public class FilmService {
             log.info("Uncorrected film Id in request: {}}.", film.getId());
             throw new ValidationException(String.format("Uncorrected film Id in request: %s.", film.getId()));
         }
-        if(!(filmStorage.getStorage().containsKey(film.getId())) && !film.getId().equals(this.id + 1)){
-            log.info("Film with Id in request: {}, not found.", film.getId());
-            throw new NotFoundException(String.format("Film with Id in request: %s, not found.", film.getId()));
-        }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))){
             log.info("Release data can not early by 28.12.1895. Request release data {}",
                     film.getReleaseDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
@@ -69,6 +65,13 @@ public class FilmService {
             log.info("Movie duration must be positive, request duration = {}", film.getDuration());
             throw new ValidationException(String.format("Movie duration must be positive, request duration = %s", film.getDuration()));
         }
+//        Long id = this.id + 1;
+//        boolean contain = filmStorage.getStorage().containsKey(film.getId());
+//        boolean equal = film.getId() != (id);
+//        if((!contain) && equal){
+//            log.info("Film with Id in request: {}, not found.", film.getId());
+//            throw new NotFoundException(String.format("Film with Id in request: %s, not found.", film.getId()));
+//        }
     }
 
     public Film filmById(Long id) {
