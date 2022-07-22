@@ -12,6 +12,9 @@ import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -30,16 +33,21 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
-        film.setId(++id);
+        film.setId(id + 1);
         validation(film);
+        ++id;
         log.info("Add new film into storage. {}", film);
         return filmStorage.addModel(film);
     }
 
     public Film updateFilm(Film film) {
-        validation(film);
-        log.info("Film with Id = {} is update.", film.getId());
-        return filmStorage.updateModel(film);
+        if (filmStorage.getStorage().containsKey(film.getId())){
+            validation(film);
+            log.info("Film with Id = {} is update.", film.getId());
+            return filmStorage.updateModel(film);
+        } else {
+            throw new NotFoundException(String.format("Film with id = %s, not found", film.getId()));
+        }
     }
 
     public void validation(Film film) {
@@ -47,7 +55,7 @@ public class FilmService {
             log.info("Uncorrected film Id in request: {}}.", film.getId());
             throw new ValidationException(String.format("Uncorrected film Id in request: %s.", film.getId()));
         }
-        if(!(filmStorage.getStorage().containsKey(film.getId())) && !film.getId().equals(this.id)){
+        if(!(filmStorage.getStorage().containsKey(film.getId())) && !film.getId().equals(this.id + 1)){
             log.info("Film with Id in request: {}, not found.", film.getId());
             throw new NotFoundException(String.format("Film with Id in request: %s, not found.", film.getId()));
         }
@@ -61,5 +69,43 @@ public class FilmService {
             log.info("Movie duration must be positive, request duration = {}", film.getDuration());
             throw new ValidationException(String.format("Movie duration must be positive, request duration = %s", film.getDuration()));
         }
+    }
+
+    public Film filmById(Long id) {
+        if (filmStorage.getStorage().containsKey(id)){
+            log.info("Send user data with id = {}.", id);
+            return filmStorage.getStorage().get(id);
+        } else {
+            throw new NotFoundException(String.format("Film with id = %s, not found", id));
+        }
+    }
+
+    public void addLike(Long id, Long userId) {
+        if (filmStorage.getStorage().containsKey(id)){
+            log.info("Movie with Id = {} was liked by the user with Id = {}.", id, userId);
+            filmStorage.getStorage().get(id).getLikes().add(userId);
+        } else {
+            throw new NotFoundException(String.format("Movie with id = %s, not found", id));
+        }
+    }
+
+    public void removeLike(Long id, Long userId) {
+        if (userId <= 0){
+            throw new NotFoundException(String.format("User id must be positive: id = %s.", id));
+        }
+        if (filmStorage.getStorage().containsKey(id)){
+            log.info("Movie with Id = {} was disliked by the user with Id = {}.", id, userId);
+            filmStorage.getStorage().get(id).getLikes().remove(userId);
+        } else {
+            throw new NotFoundException(String.format("Movie with id = %s, not found", id));
+        }
+    }
+
+    public Set<Film> getPopularFilms(Integer count) {
+        log.info("Send {} popular films", count);
+        return filmStorage.getStorage().values().stream()
+                .sorted(Comparator.comparingInt(o -> o.getLikes().size()))
+                .limit(count)
+                .collect(Collectors.toUnmodifiableSet());
     }
 }

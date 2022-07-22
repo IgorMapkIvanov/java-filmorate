@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -12,7 +11,6 @@ import java.util.TreeMap;
 
 @Component
 @NoArgsConstructor
-@Getter
 public class InMemoryFilmStorage implements ModelStorage<Film> {
     final Map<Long, Film> storage = new TreeMap<>();
 
@@ -38,5 +36,4 @@ public class InMemoryFilmStorage implements ModelStorage<Film> {
         }
         return film;
     }
-
 }

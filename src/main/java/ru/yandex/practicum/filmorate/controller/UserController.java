@@ -34,7 +34,7 @@ public class UserController {
     }
     @GetMapping("/{id}/friends/common/{otherId}")
     public Set<User> searchMutualFriends(@PathVariable Long id, @PathVariable Long otherId){
-        return userService.searchMutualFriends(id, otherId);
+        return userService.searchCommonFriends(id, otherId);
     }
 
     // Post requests

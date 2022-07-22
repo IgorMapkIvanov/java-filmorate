@@ -94,7 +94,7 @@ public class UserService {
         }
     }
 
-    public Set<User> searchMutualFriends(Long id, Long otherId) {
+    public Set<User> searchCommonFriends(Long id, Long otherId) {
         if (userStorage.getStorage().containsKey(id)) {
             if (userStorage.getStorage().containsKey(otherId)) {
                 log.info("Send common friends user's with id's: {} and {}", id, otherId);
