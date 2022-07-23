@@ -14,11 +14,11 @@ import java.util.TreeMap;
 public class InMemoryUserStorage implements ModelStorage<User>{
     protected final Map<Long, User> storage = new TreeMap<>();
 
-    public Collection<User> getModels() {
+    public Collection<User> getAll() {
         return storage.values();
     }
 
-    public User addModel(User user) {
+    public User add(User user) {
         storage.put(user.getId(), user);
         return user;
     }
@@ -27,7 +27,7 @@ public class InMemoryUserStorage implements ModelStorage<User>{
         return storage;
     }
 
-    public User updateModel(User user) {
+    public User update(User user) {
         if (storage.containsKey(user.getId())){
             storage.remove(user.getId());
             storage.put(user.getId(), user);

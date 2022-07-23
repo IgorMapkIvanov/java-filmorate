@@ -28,22 +28,22 @@ public class FilmService {
         this.filmStorage = filmStorage;
     }
 
-    public Collection<Film> getFilms() {
-        return filmStorage.getModels();
+    public Collection<Film> getAll() {
+        return filmStorage.getAll();
     }
 
-    public Film addFilm(Film film) {
+    public Film add(Film film) {
         film.setId(++this.id);
         validation(film);
         log.info("Add new film into storage. {}", film);
-        return filmStorage.addModel(film);
+        return filmStorage.add(film);
     }
 
-    public Film updateFilm(Film film) {
+    public Film update(Film film) {
         if (filmStorage.getStorage().containsKey(film.getId())){
             validation(film);
             log.info("Film with Id = {} is update.", film.getId());
-            return filmStorage.updateModel(film);
+            return filmStorage.update(film);
         } else {
             throw new NotFoundException(String.format("Film with id = %s, not found", film.getId()));
         }
@@ -64,16 +64,9 @@ public class FilmService {
             log.info("Movie duration must be positive, request duration = {}", film.getDuration());
             throw new ValidationException(String.format("Movie duration must be positive, request duration = %s", film.getDuration()));
         }
-//        Long id = this.id + 1;
-//        boolean contain = filmStorage.getStorage().containsKey(film.getId());
-//        boolean equal = film.getId() != (id);
-//        if((!contain) && equal){
-//            log.info("Film with Id in request: {}, not found.", film.getId());
-//            throw new NotFoundException(String.format("Film with Id in request: %s, not found.", film.getId()));
-//        }
     }
 
-    public Film filmById(Long id) {
+    public Film getById(Long id) {
         if (filmStorage.getStorage().containsKey(id)){
             log.info("Send user data with id = {}.", id);
             return filmStorage.getStorage().get(id);
@@ -103,11 +96,19 @@ public class FilmService {
         }
     }
 
-    public List<Film> getPopularFilms(Integer count) {
+    public List<Film> getPopular(Integer count) {
         log.info("Send {} popular films", count);
-        return filmStorage.getModels().stream()
+        return filmStorage.getAll().stream()
                 .sorted(Comparator.comparing(Film::getLikes, (o1, o2) -> o2.size() - o1.size()))
                 .limit(count)
                 .collect(Collectors.toUnmodifiableList());
+    }
+
+    public void remove(Long id) {
+        if (filmStorage.getStorage().containsKey(id)) {
+            filmStorage.getStorage().remove(id);
+        } else {
+            throw new NotFoundException(String.format("User with id = %s, not found", id));
+        }
     }
 }

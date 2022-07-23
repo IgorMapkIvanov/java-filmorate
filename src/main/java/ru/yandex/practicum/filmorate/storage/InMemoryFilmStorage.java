@@ -18,16 +18,16 @@ public class InMemoryFilmStorage implements ModelStorage<Film> {
         return storage;
     }
 
-    public Collection<Film> getModels() {
+    public Collection<Film> getAll() {
         return storage.values();
     }
 
-    public Film addModel(Film film) {
+    public Film add(Film film) {
         storage.put(film.getId(), film);
         return film;
     }
 
-    public Film updateModel(Film film) {
+    public Film update(Film film) {
         if (storage.containsKey(film.getId())){
             storage.remove(film.getId());
             storage.put(film.getId(), film);

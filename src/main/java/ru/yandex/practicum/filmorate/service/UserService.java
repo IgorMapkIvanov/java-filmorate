@@ -45,27 +45,27 @@ public class UserService {
     }
 
     public Collection<User> getUsers() {
-        return userStorage.getModels();
+        return userStorage.getAll();
     }
 
-    public User addUser(User user) {
+    public User add(User user) {
         user.setId(++this.id);
         validation(user);
         log.info("Add new user into storage. {}", user);
-        return userStorage.addModel(user);
+        return userStorage.add(user);
     }
 
-    public User updateUser(User user) {
+    public User update(User user) {
         if (userStorage.getStorage().containsKey(user.getId())){
             validation(user);
             log.info("User with Id = {} is update.", user.getId());
-            return userStorage.updateModel(user);
+            return userStorage.update(user);
         } else {
             throw new NotFoundException(String.format("User with id = %s, not found", user.getId()));
         }
     }
 
-    public User userById(Long id) {
+    public User getById(Long id) {
         if (userStorage.getStorage().containsKey(id)){
             log.info("Send user data with id = {}.", id);
             return userStorage.getStorage().get(id);
@@ -74,7 +74,7 @@ public class UserService {
         }
     }
 
-    public Set<User> userFriends(Long id) {
+    public Set<User> getFriends(Long id) {
         if (userStorage.getStorage().containsKey(id)){
             log.info("Send  user's friends with id = {}.", id);
             if (userStorage.getStorage().get(id).getFriendsId() != null){
@@ -142,6 +142,14 @@ public class UserService {
             } else {
                 throw new NotFoundException(String.format("User with id = %s, not found", friendId));
             }
+        } else {
+            throw new NotFoundException(String.format("User with id = %s, not found", id));
+        }
+    }
+
+    public void remove(Long id) {
+        if (userStorage.getStorage().containsKey(id)) {
+            userStorage.getStorage().remove(id);
         } else {
             throw new NotFoundException(String.format("User with id = %s, not found", id));
         }

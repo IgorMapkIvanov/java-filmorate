@@ -6,11 +6,11 @@ import java.util.Collection;
 import java.util.Map;
 
 public interface ModelStorage<T extends ModelType >{
-    Collection<T> getModels();
+    Collection<T> getAll();
 
-    T addModel(T model);
+    T add(T model);
 
-    T updateModel(T model);
+    T update(T model);
 
     Map<Long, T> getStorage();
 }

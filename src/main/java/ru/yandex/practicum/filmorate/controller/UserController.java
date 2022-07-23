@@ -21,32 +21,32 @@ public class UserController {
 
     // Get requests
     @GetMapping
-    public Collection<User> getUsers() {
+    public Collection<User> getAll() {
         return userService.getUsers();
     }
     @GetMapping("/{id}")
-    public User userById(@PathVariable Long id){
-        return userService.userById(id);
+    public User getById(@PathVariable Long id){
+        return userService.getById(id);
     }
     @GetMapping("/{id}/friends")
-    public Set<User> userFriends(@PathVariable Long id){
-        return userService.userFriends(id);
+    public Set<User> getFriends(@PathVariable Long id){
+        return userService.getFriends(id);
     }
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Set<User> searchMutualFriends(@PathVariable Long id, @PathVariable Long otherId){
+    public Set<User> searchCommonFriends(@PathVariable Long id, @PathVariable Long otherId){
         return userService.searchCommonFriends(id, otherId);
     }
 
     // Post requests
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) {
-        return userService.addUser(user);
+    public User add(@Valid @RequestBody User user) {
+        return userService.add(user);
     }
 
     // Put requests
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) {
-        return userService.updateUser(user);
+    public User update(@Valid @RequestBody User user) {
+        return userService.update(user);
     }
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable Long id, @PathVariable Long friendId){
@@ -54,6 +54,10 @@ public class UserController {
     }
 
     //Delete requests
+    @DeleteMapping("/{id}")
+    public void remove(@PathVariable Long id){
+        userService.remove(id);
+    }
     @DeleteMapping("/{id}/friends/{friendId}")
     public void removeFriend(@PathVariable Long id, @PathVariable Long friendId){
         userService.removeFriend(id, friendId);

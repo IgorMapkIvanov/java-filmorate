@@ -32,7 +32,7 @@ class UserServiceValidationTest {
     void shouldWhenNameIsEmpty() {
         UserService userService = new UserService(new InMemoryUserStorage());
         User user = new User(1L, "u1@ya.ru", "u1", "",LocalDate.of(1995, 12, 28), null);
-        userService.addUser(user);
+        userService.add(user);
 
         userService.validation(user);
 
@@ -44,6 +44,6 @@ class UserServiceValidationTest {
         UserService userService = new UserService(new InMemoryUserStorage());
         User user = new User(1L, "u1@ya.ru", "u1", "nu1",LocalDate.now().plusDays(1), null);
 
-        assertThrows(ValidationException.class, () -> userService.addUser(user));
+        assertThrows(ValidationException.class, () -> userService.add(user));
     }
 }
