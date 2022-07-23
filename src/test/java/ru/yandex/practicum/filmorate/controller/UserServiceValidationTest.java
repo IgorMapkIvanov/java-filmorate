@@ -21,14 +21,6 @@ class UserServiceValidationTest {
     }
 
     @Test
-    void shouldWhenIdNotFoundInStorage() {
-        UserService userService = new UserService(new InMemoryUserStorage());
-        User user = new User(2L, "u1@ya.ru", "u1", "un1",LocalDate.of(1995, 12, 28), null);
-
-        assertThrows(NotFoundException.class, () -> userService.validation(user));
-    }
-
-    @Test
     void shouldWhenNameIsEmpty() {
         UserService userService = new UserService(new InMemoryUserStorage());
         User user = new User(1L, "u1@ya.ru", "u1", "",LocalDate.of(1995, 12, 28), null);
