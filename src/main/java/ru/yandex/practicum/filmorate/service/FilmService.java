@@ -33,8 +33,9 @@ public class FilmService {
     }
 
     public Film add(Film film) {
-        film.setId(++this.id);
+        film.setId(this.id + 1);
         validation(film);
+        this.id++;
         log.info("Add new film into storage. {}", film);
         return filmStorage.add(film);
     }

@@ -49,8 +49,9 @@ public class UserService {
     }
 
     public User add(User user) {
-        user.setId(++this.id);
+        user.setId(this.id + 1);
         validation(user);
+        this.id++;
         log.info("Add new user into storage. {}", user);
         return userStorage.add(user);
     }
