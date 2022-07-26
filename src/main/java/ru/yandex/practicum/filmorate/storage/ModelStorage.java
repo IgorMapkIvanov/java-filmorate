@@ -13,4 +13,6 @@ public interface ModelStorage<T extends ModelType >{
     T update(T model);
 
     Map<Long, T> getStorage();
+
+    void remove(Long id);
 }

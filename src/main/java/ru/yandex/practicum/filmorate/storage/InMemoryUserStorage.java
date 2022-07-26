@@ -14,26 +14,31 @@ import java.util.TreeMap;
 public class InMemoryUserStorage implements ModelStorage<User>{
     protected final Map<Long, User> storage = new TreeMap<>();
 
+    @Override
     public Collection<User> getAll() {
         return storage.values();
     }
 
+    @Override
     public User add(User user) {
         storage.put(user.getId(), user);
         return user;
     }
 
+    @Override
     public Map<Long, User> getStorage() {
         return storage;
     }
 
+    @Override
+    public void remove(Long id) {
+        storage.remove(id);
+    }
+
+    @Override
     public User update(User user) {
-        if (storage.containsKey(user.getId())){
-            storage.remove(user.getId());
-            storage.put(user.getId(), user);
-        } else {
-            throw new NotFoundException(String.format("User with Id = %s, not found.", user.getId()));
-        }
+        storage.remove(user.getId());
+        storage.put(user.getId(), user);
         return user;
     }
 }

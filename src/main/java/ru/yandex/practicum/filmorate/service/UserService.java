@@ -150,7 +150,7 @@ public class UserService {
 
     public void remove(Long id) {
         if (userStorage.getStorage().containsKey(id)) {
-            userStorage.getStorage().remove(id);
+            userStorage.remove(id);
         } else {
             throw new NotFoundException(String.format("User with id = %s, not found", id));
         }

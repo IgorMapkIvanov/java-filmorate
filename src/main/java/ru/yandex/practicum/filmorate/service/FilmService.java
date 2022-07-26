@@ -107,7 +107,7 @@ public class FilmService {
 
     public void remove(Long id) {
         if (filmStorage.getStorage().containsKey(id)) {
-            filmStorage.getStorage().remove(id);
+            filmStorage.remove(id);
         } else {
             throw new NotFoundException(String.format("User with id = %s, not found", id));
         }
