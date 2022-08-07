@@ -1,4 +1,4 @@
 # java-filmorate
 Template repository for Filmorate project.
 # Database diagram
-<img src="db/FILMORATE.png" alt="Database diagram">
+<img src="db/filmorate.png" alt="Database diagram">
