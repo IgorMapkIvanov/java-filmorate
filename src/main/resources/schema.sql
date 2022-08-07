@@ -1,6 +1,6 @@
 create table IF NOT EXISTS GENRES
 (
-    ID   INTEGER auto_increment,
+    ID   INTEGER,
     NAME CHARACTER VARYING(30) not null
 );
 
