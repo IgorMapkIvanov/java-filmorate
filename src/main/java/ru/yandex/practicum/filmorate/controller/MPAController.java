@@ -13,7 +13,7 @@ import java.util.Collection;
 @RestController
 @RequestMapping(value = "/mpa")
 public class MPAController {
-    private MPAService mpaService;
+    private final MPAService mpaService;
 
     @Autowired
     public MPAController(MPAService mpaService) {
