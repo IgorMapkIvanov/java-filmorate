@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 @Component
 @NoArgsConstructor
+@Qualifier("InMemoryUserStorage")
 public class InMemoryUserStorage implements ModelStorage<User>{
     protected final Map<Long, User> storage = new TreeMap<>();
 
