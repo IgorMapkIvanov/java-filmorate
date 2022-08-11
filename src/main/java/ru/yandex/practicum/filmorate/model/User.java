@@ -16,6 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements ModelType {
+    @Generated
     protected Long id;
     @Email
     protected String email;

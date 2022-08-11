@@ -55,11 +55,11 @@ public class UserController {
 
     //Delete requests
     @DeleteMapping("/{id}")
-    public void remove(@PathVariable Long id){
-        userService.remove(id);
+    public void delete(@PathVariable Long id){
+        userService.delete(id);
     }
     @DeleteMapping("/{id}/friends/{friendId}")
-    public void removeFriend(@PathVariable Long id, @PathVariable Long friendId){
-        userService.removeFriend(id, friendId);
+    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId){
+        userService.deleteFriend(id, friendId);
     }
 }

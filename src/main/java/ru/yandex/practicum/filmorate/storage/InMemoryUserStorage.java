@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 @Component
@@ -34,6 +35,16 @@ public class InMemoryUserStorage implements ModelStorage<User>{
     @Override
     public void remove(Long id) {
         storage.remove(id);
+    }
+
+    @Override
+    public User getById(Long id) {
+        return storage.getOrDefault(id, null);
+    }
+
+    @Override
+    public Set<User> getFriends(Long id) {
+        return null;
     }
 
     @Override

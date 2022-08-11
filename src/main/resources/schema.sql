@@ -77,7 +77,6 @@ create table IF NOT EXISTS FRIENDS
 (
     USER_ID   INTEGER not null,
     FRIEND_ID INTEGER not null,
-    STATUS    BOOLEAN not null,
     constraint FRIENDS_PK
         primary key (USER_ID, FRIEND_ID),
     constraint FK_FRIENDS_USERS
