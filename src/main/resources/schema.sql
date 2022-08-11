@@ -17,8 +17,7 @@ alter table GENRES
 create table IF NOT EXISTS MPA
 (
     ID          INTEGER                not null,
-    NAME        CHARACTER VARYING(5)   not null,
-    DESCRIPTION CHARACTER VARYING(100) not null
+    NAME        CHARACTER VARYING(5)   not null
 );
 
 create unique index IF NOT EXISTS MPA_ID_UINDEX
