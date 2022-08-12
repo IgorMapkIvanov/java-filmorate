@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -11,52 +11,48 @@ import java.util.*;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = "/films")
 public class FilmController {
-    private final FilmService filmService;
-
-    @Autowired
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
+    private final FilmService service;
 
     // Get requests
     @GetMapping
     public Collection<Film> getAll() {
-        return filmService.getAll();
+        return service.getAll();
     }
     @GetMapping("/{id}")
     public Film getById(@PathVariable Long id){
-        return filmService.getById(id);
+        return service.getById(id);
     }
     @GetMapping("/popular")
     public List<Film> getPopular(@RequestParam(defaultValue = "10") String count){
-        return filmService.getPopular(Integer.valueOf(count));
+        return service.getPopular(Integer.valueOf(count));
     }
 
     // Post requests
     @PostMapping
     public Film add(@Valid @RequestBody Film film) {
-        return filmService.add(film);
+        return service.add(film);
     }
 
     // Put requests
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-        return filmService.update(film);
+        return service.update(film);
     }
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable Long id, @PathVariable Long userId){
-        filmService.addLike(id, userId);
+        service.addLike(id, userId);
     }
 
     //Delete requests
     @DeleteMapping("/{id}")
-    public void remove(@PathVariable Long id){
-        filmService.remove(id);
+    public void delete(@PathVariable Long id){
+        service.delete(id);
     }
     @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(@PathVariable Long id, @PathVariable Long userId){
-        filmService.removeLike(id, userId);
+    public void deleteLike(@PathVariable Long id, @PathVariable Long userId){
+        service.deleteLike(id, userId);
     }
 }

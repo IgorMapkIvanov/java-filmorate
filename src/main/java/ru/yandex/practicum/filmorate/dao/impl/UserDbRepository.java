@@ -1,25 +1,22 @@
-package ru.yandex.practicum.filmorate.dao;
+package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dao.UserRepository;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
-@Service
-@Slf4j
+@Repository
 @RequiredArgsConstructor
-public class UserDbRepository implements UserRepository{
+public class UserDbRepository implements UserRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -31,8 +28,7 @@ public class UserDbRepository implements UserRepository{
             stmt.setString(1, user.getLogin());
             stmt.setString(2, user.getName());
             stmt.setString(3, user.getEmail());
-            stmt.setString(4, user.getBirthday()
-                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            stmt.setDate(4, Date.valueOf(user.getBirthday()));
             return stmt;
         }, keyHolder);
         user.setId(keyHolder.getKey().longValue());
@@ -41,14 +37,13 @@ public class UserDbRepository implements UserRepository{
 
     @Override
     public User update(User user) {
-        String sql = "UPDATE USERS SET " +
-                "LOGIN = ?, NAME = ?, EMAIL = ?, BIRTHDAY = ? " +
+        String sql = "UPDATE USERS SET LOGIN = ?, NAME = ?, EMAIL = ?, BIRTHDAY = ?\n" +
                 " WHERE id = ?";
         jdbcTemplate.update(sql,
                 user.getLogin(),
                 user.getName(),
                 user.getEmail(),
-                user.getBirthday().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                Date.valueOf(user.getBirthday()),
                 user.getId());
         return user;
     }
@@ -62,15 +57,7 @@ public class UserDbRepository implements UserRepository{
     @Override
     public Collection<User> getAll() {
         String sql = "SELECT * FROM USERS ORDER BY ID";
-        return jdbcTemplate.queryForStream(sql,
-                        (rs, rowNum) -> new User(rs.getLong("id"),
-                                rs.getString("email"),
-                                rs.getString("login"),
-                                rs.getString("name"),
-                                LocalDate.parse(rs.getString("birthday"),
-                                        DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                                new HashSet<>()))
-                .collect(Collectors.toUnmodifiableList());
+        return jdbcTemplate.query(sql, UserDbRepository::makeUser);
     }
 
     @Override
@@ -94,7 +81,7 @@ public class UserDbRepository implements UserRepository{
 
     public Set<User> getFriends(Long id) {
         String sqlFriends = "SELECT *\n" +
-                "FROM PUBLIC.USERS\n" +
+                "FROM USERS\n" +
                 "WHERE ID IN (SELECT USER_ID FROM FRIENDS WHERE FRIEND_ID = ?)";
         List<User> friends = jdbcTemplate.query(sqlFriends, UserDbRepository::makeUser, id);
         return new HashSet<>(friends);
@@ -129,8 +116,7 @@ public class UserDbRepository implements UserRepository{
                 rs.getString("email"),
                 rs.getString("login"),
                 rs.getString("name"),
-                LocalDate.parse(rs.getString("birthday"),
-                        DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                rs.getDate("birthday").toLocalDate(),
                 new HashSet<>());
     }
 }
