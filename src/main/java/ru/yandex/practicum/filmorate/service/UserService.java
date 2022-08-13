@@ -21,6 +21,10 @@ public class UserService {
     private final UserRepository repository;
 
     public void validation(User user) {
+        if (user.getId() != null && user.getId()<= 0L){
+            log.info("Incorrect user ID = {}", user.getId());
+            throw new NotFoundException(String.format("Incorrect user ID = %s", user.getId()));
+        }
         if(user.getName().isBlank()){
             user.setName(user.getLogin());
         }

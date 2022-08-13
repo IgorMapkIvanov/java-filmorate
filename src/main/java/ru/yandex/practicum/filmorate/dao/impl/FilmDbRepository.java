@@ -26,7 +26,7 @@ public class FilmDbRepository implements FilmRepository {
 
     @Override
     public Collection<Film> getAll() {
-        String sql = "SELECT f.*, m.NAME MPA_NAME FROM FILMS f, MPA m ORDER BY ID";
+        String sql = "SELECT f.*, m.NAME MPA_NAME FROM FILMS f, MPA m WHERE f.MPA_ID = m.ID";
         Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm);
         films.forEach(x -> x.setLikes(loadLikes(x.getId())));
         genreRepository.loadFilmGenres(films);
@@ -47,6 +47,9 @@ public class FilmDbRepository implements FilmRepository {
             return stmt;
         }, keyHolder);
         film.setId(keyHolder.getKey().longValue());
+        if(film.getGenres() != null && film.getGenres().size() > 0){
+            genreRepository.saveFilmGenres(List.of(film));
+        }
         return film;
     }
 
@@ -59,25 +62,33 @@ public class FilmDbRepository implements FilmRepository {
                 film.getDescription(),
                 Date.valueOf(film.getReleaseDate()),
                 film.getDuration(),
-                film.getMpa().getId());
-        genreRepository.loadFilmGenres(List.of(film));
+                film.getMpa().getId(),
+                film.getId());
+            genreRepository.saveFilmGenres(List.of(film));
+            genreRepository.loadFilmGenres(List.of(film));
         film.setLikes(loadLikes(film.getId()));
         return film;
     }
 
     @Override
     public boolean delete(Long filmId) {
-        String sql = "DELETE FROM FILMS WHERE ID = ?";
-        return jdbcTemplate.update(sql, filmId) > 0;
+        String sqlDelFromLikes = "DELETE FROM LIKES WHERE FILM_ID = ?";
+        jdbcTemplate.update(sqlDelFromLikes, filmId);
+        String sqlDelFromFilmGenres = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
+        jdbcTemplate.update(sqlDelFromFilmGenres, filmId);
+        String sqlDelFromFilms = "DELETE FROM FILMS WHERE ID = ?";
+        return jdbcTemplate.update(sqlDelFromFilms, filmId) > 0;
     }
 
     @Override
     public Film getById(Long id) {
-        String sql = "SELECT f.*, m.NAME MPA_NAME FROM FILMS f, MPA m WHERE f.ID = ?";
+        String sql = "SELECT f.*, m.NAME MPA_NAME FROM FILMS f, MPA m WHERE f.ID = ? AND f.MPA_ID = m.ID";
         List<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, id);
         if (films.size() != 1){
             return null;
         }
+        genreRepository.loadFilmGenres(films);
+        loadLikes(films);
         return films.get(0);
     }
 
@@ -93,9 +104,9 @@ public class FilmDbRepository implements FilmRepository {
     }
 
     @Override
-    public void deleteLike(Long filmId, Long userId) {
+    public boolean deleteLike(Long filmId, Long userId) {
         String sql = "DELETE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?";
-        jdbcTemplate.update(sql, filmId, userId);
+        return jdbcTemplate.update(sql, filmId, userId) > 0;
     }
 
     private Set<Long> loadLikes(Long id) {

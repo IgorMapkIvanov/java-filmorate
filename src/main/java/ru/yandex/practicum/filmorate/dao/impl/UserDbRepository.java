@@ -50,8 +50,12 @@ public class UserDbRepository implements UserRepository {
 
     @Override
     public boolean delete(Long id) {
-        String sql = "DELETE FROM USERS WHERE ID = ?";
-        return jdbcTemplate.update(sql, id) > 0;
+        String sqlDelFromLikes = "DELETE FROM LIKES WHERE USER_ID = ?";
+        jdbcTemplate.update(sqlDelFromLikes, id);
+        String sqlDelFromFriends = "DELETE FROM FRIENDS WHERE USER_ID = ? OR FRIEND_ID = 2";
+        jdbcTemplate.update(sqlDelFromFriends, id, id);
+        String sqlDelFromUsers = "DELETE FROM USERS WHERE ID = ?";
+        return jdbcTemplate.update(sqlDelFromUsers, id) > 0;
     }
 
     @Override
@@ -80,9 +84,9 @@ public class UserDbRepository implements UserRepository {
     }
 
     public Set<User> getFriends(Long id) {
-        String sqlFriends = "SELECT *\n" +
-                "FROM USERS\n" +
-                "WHERE ID IN (SELECT USER_ID FROM FRIENDS WHERE FRIEND_ID = ?)";
+        String sqlFriends = "SELECT u.*\n" +
+                "FROM USERS u, FRIENDS f\n" +
+                "WHERE f.USER_ID = ? AND u.ID = f.FRIEND_ID";
         List<User> friends = jdbcTemplate.query(sqlFriends, UserDbRepository::makeUser, id);
         return new HashSet<>(friends);
     }

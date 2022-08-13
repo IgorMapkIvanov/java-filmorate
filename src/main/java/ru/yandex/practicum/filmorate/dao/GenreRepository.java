@@ -38,7 +38,7 @@ public class GenreRepository {
     }
 
     private Collection<Genre> loadGenres(Long id) {
-        String sql = "SELECT g.ID, g.NAME FROM GENRES g, FILM_GENRES fg WHERE fg.FILM_ID = ?";
+        String sql = "SELECT g.ID, g.NAME FROM GENRES g, FILM_GENRES fg WHERE fg.FILM_ID = ? AND fg.GENRE_ID = g.ID";
         return jdbcTemplate.query(sql, GenreRepository::makeGenre, id);
     }
 
@@ -46,9 +46,12 @@ public class GenreRepository {
         String sqlDelete = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
         films.forEach(x -> jdbcTemplate.update(sqlDelete, x.getId()));
 
-        String sqlSave = "INSERT INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
-        films.forEach(x -> x.getGenres()
-                .forEach(genre -> jdbcTemplate.update(sqlSave, x.getId(), genre.getId())));
+        String sqlSave = "MERGE INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
+        films.forEach(x -> {
+            if(x.getGenres() != null){
+                x.getGenres().forEach(genre -> jdbcTemplate.update(sqlSave, x.getId(), genre.getId()));
+            }
+        });
     }
 
     private static Genre makeGenre(ResultSet rs, int rowNum) throws SQLException {

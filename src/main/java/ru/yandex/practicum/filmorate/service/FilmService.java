@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.GenreRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -20,9 +19,12 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmRepository repository;
-    private final GenreRepository genreRepository;
 
     public void validation(Film film) {
+        if (film.getId() != null && film.getId()<= 0L){
+            log.info("Incorrect film ID = {}", film.getId());
+            throw new NotFoundException(String.format("Incorrect film ID = %s", film.getId()));
+        }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))){
             log.info("Release data can not early by 28.12.1895. Request release data {}",
                     film.getReleaseDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
@@ -37,7 +39,6 @@ public class FilmService {
 
     public Collection<Film> getAll() {
         Collection<Film> films = repository.getAll();
-        genreRepository.loadFilmGenres(films);
         log.info("Send data of all films.");
         return films;
     }
@@ -45,7 +46,6 @@ public class FilmService {
     public Film add(Film film) {
         validation(film);
         Film addFilm = repository.add(film);
-        genreRepository.saveFilmGenres(List.of(film));
         log.info("Add new film into storage with ID = {}", addFilm.getId());
         return addFilm;
     }
@@ -56,7 +56,6 @@ public class FilmService {
             throw new NotFoundException(String.format("Movie with id = %s, not found", film.getId()));
         }
         repository.update(film);
-        genreRepository.saveFilmGenres(List.of(film));
         return film;
     }
 
@@ -74,8 +73,6 @@ public class FilmService {
             log.info("Film with ID = {}, not found.", id);
             throw new NotFoundException(String.format("Film with ID = %s, not found", id));
         }
-        genreRepository.loadFilmGenres(List.of(film));
-        repository.loadLikes(List.of(film));
         return film;
     }
 
@@ -92,7 +89,10 @@ public class FilmService {
             log.info("Movie with ID = {}, not found.", filmId);
             throw new NotFoundException(String.format("Movie with id = %s, not found", filmId));
         }
-        repository.deleteLike(filmId, userId);
+        if (!repository.deleteLike(filmId, userId)){
+            log.info("User with ID = {}, don't like film with ID = {}.",userId, filmId);
+            throw new NotFoundException(String.format("User with ID = %s, don't like film with ID = %s.",userId, filmId));
+        }
     }
 
     public List<Film> getPopular(Integer count) {

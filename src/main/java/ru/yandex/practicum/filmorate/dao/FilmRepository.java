@@ -19,5 +19,5 @@ public interface FilmRepository {
 
     void addLike(Long filmId, Long userId);
 
-    void deleteLike(Long filmId, Long userId);
+    boolean deleteLike(Long filmId, Long userId);
 }
