@@ -39,20 +39,23 @@ public class UserDbRepository implements UserRepository {
     public User update(User user) {
         String sql = "UPDATE USERS SET LOGIN = ?, NAME = ?, EMAIL = ?, BIRTHDAY = ?\n" +
                 " WHERE id = ?";
-        jdbcTemplate.update(sql,
+        int countUpdateRows = jdbcTemplate.update(sql,
                 user.getLogin(),
                 user.getName(),
                 user.getEmail(),
                 Date.valueOf(user.getBirthday()),
                 user.getId());
-        return user;
+        if(countUpdateRows > 0){
+            return user;
+        }
+        return null;
     }
 
     @Override
     public boolean delete(Long id) {
         String sqlDelFromLikes = "DELETE FROM LIKES WHERE USER_ID = ?";
         jdbcTemplate.update(sqlDelFromLikes, id);
-        String sqlDelFromFriends = "DELETE FROM FRIENDS WHERE USER_ID = ? OR FRIEND_ID = 2";
+        String sqlDelFromFriends = "DELETE FROM FRIENDS WHERE USER_ID = ? OR FRIEND_ID = ?";
         jdbcTemplate.update(sqlDelFromFriends, id, id);
         String sqlDelFromUsers = "DELETE FROM USERS WHERE ID = ?";
         return jdbcTemplate.update(sqlDelFromUsers, id) > 0;

@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,9 @@ public class GenreRepository {
 
     private Collection<Genre> loadGenres(Long id) {
         String sql = "SELECT g.ID, g.NAME FROM GENRES g, FILM_GENRES fg WHERE fg.FILM_ID = ? AND fg.GENRE_ID = g.ID";
-        return jdbcTemplate.query(sql, GenreRepository::makeGenre, id);
+        return jdbcTemplate.query(sql, GenreRepository::makeGenre, id).stream()
+                .sorted(Comparator.comparing(Genre::getId, Integer::compareTo))
+                .collect(Collectors.toUnmodifiableList());
     }
 
     public void saveFilmGenres(Collection<Film> films) {

@@ -57,17 +57,20 @@ public class FilmDbRepository implements FilmRepository {
     public Film update(Film film) {
         String sql = "UPDATE FILMS SET NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, DURATION = ?, MPA_ID = ?\n" +
                 " WHERE id = ?";
-        jdbcTemplate.update(sql,
+        int countUpdateRows = jdbcTemplate.update(sql,
                 film.getName(),
                 film.getDescription(),
                 Date.valueOf(film.getReleaseDate()),
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId());
+        if(countUpdateRows > 0){
             genreRepository.saveFilmGenres(List.of(film));
             genreRepository.loadFilmGenres(List.of(film));
-        film.setLikes(loadLikes(film.getId()));
-        return film;
+            film.setLikes(loadLikes(film.getId()));
+            return film;
+        }
+        return null;
     }
 
     @Override

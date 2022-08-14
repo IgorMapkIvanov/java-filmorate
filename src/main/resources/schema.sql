@@ -1,7 +1,7 @@
 create table IF NOT EXISTS GENRES
 (
     ID   INTEGER not null,
-    NAME CHARACTER VARYING(30) not null
+    NAME CHARACTER VARYING(50) not null
 );
 
 create unique index IF NOT EXISTS GENRES_ID_UINDEX
