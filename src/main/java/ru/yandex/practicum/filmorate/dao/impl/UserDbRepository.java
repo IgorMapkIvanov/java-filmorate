@@ -5,6 +5,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dao.FriendsRepository;
+import ru.yandex.practicum.filmorate.dao.LikesRepository;
 import ru.yandex.practicum.filmorate.dao.UserRepository;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -17,6 +19,8 @@ import java.util.*;
 @Repository
 @RequiredArgsConstructor
 public class UserDbRepository implements UserRepository {
+    private final LikesRepository likesRepository;
+    private final FriendsRepository friendsRepository;
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -53,10 +57,9 @@ public class UserDbRepository implements UserRepository {
 
     @Override
     public boolean delete(Long id) {
-        String sqlDelFromLikes = "DELETE FROM LIKES WHERE USER_ID = ?";
-        jdbcTemplate.update(sqlDelFromLikes, id);
-        String sqlDelFromFriends = "DELETE FROM FRIENDS WHERE USER_ID = ? OR FRIEND_ID = ?";
-        jdbcTemplate.update(sqlDelFromFriends, id, id);
+        likesRepository.deleteUserLikes(id);
+        friendsRepository.deleteFriends(id);
+
         String sqlDelFromUsers = "DELETE FROM USERS WHERE ID = ?";
         return jdbcTemplate.update(sqlDelFromUsers, id) > 0;
     }
@@ -70,8 +73,7 @@ public class UserDbRepository implements UserRepository {
     @Override
     public User getById(Long id){
         Set<Long> friends = new HashSet<>();
-        String sqlFriendsIds = "SELECT FRIEND_ID FROM FRIENDS WHERE USER_ID = ?";
-        List<Long> friendsIds = jdbcTemplate.query(sqlFriendsIds, (rs, rowNum) -> rs.getLong("friend_id"), id);
+        List<Long> friendsIds = friendsRepository.getFriendsIds(id);
         if (friendsIds.size() != 0){
             friends.addAll(friendsIds);
         }
@@ -87,38 +89,25 @@ public class UserDbRepository implements UserRepository {
     }
 
     public Set<User> getFriends(Long id) {
-        String sqlFriends = "SELECT u.*\n" +
-                "FROM USERS u, FRIENDS f\n" +
-                "WHERE f.USER_ID = ? AND u.ID = f.FRIEND_ID";
-        List<User> friends = jdbcTemplate.query(sqlFriends, UserDbRepository::makeUser, id);
-        return new HashSet<>(friends);
+        return new HashSet<>(friendsRepository.getFriends(id));
     }
 
     @Override
     public void addFriends(Long userId, Long friendId) {
-        String sql = "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) VALUES (?,?)";
-        jdbcTemplate.update(sql, userId, friendId);
+        friendsRepository.addFriends(userId, friendId);
     }
 
     @Override
     public void deleteFriend(Long userId, Long friendId) {
-        String sql = "DELETE FROM FRIENDS WHERE USER_ID = ? AND FRIEND_ID = ?";
-        jdbcTemplate.update(sql, userId, friendId);
+        friendsRepository.deleteFriend(userId,friendId);
     }
 
     @Override
     public Set<User> searchCommonFriends(Long userId, Long otherId) {
-        String sql = "SELECT u.*\n" +
-                "FROM USERS u, FRIENDS f1, FRIENDS f2\n" +
-                "WHERE u.ID = f1.FRIEND_ID\n" +
-                "AND u.ID = f2.FRIEND_ID\n" +
-                "AND f1.USER_ID = ?\n" +
-                "AND f2.USER_ID = ?";
-        List<User> users = jdbcTemplate.query(sql, UserDbRepository::makeUser, userId, otherId);
-        return new HashSet<>(users);
+        return new HashSet<>(friendsRepository.commonFriends(userId, otherId));
     }
 
-    private static User makeUser(ResultSet rs, int rowNum) throws SQLException {
+    public static User makeUser(ResultSet rs, int rowNum) throws SQLException {
         return new User(rs.getLong("id"),
                 rs.getString("email"),
                 rs.getString("login"),

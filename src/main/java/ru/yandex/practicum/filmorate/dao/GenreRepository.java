@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @Repository
 @RequiredArgsConstructor
 public class GenreRepository {
+    private final FilmGenresRepository filmGenresRepository;
     private final JdbcTemplate jdbcTemplate;
 
     public Collection<Genre> getAll() {
@@ -38,23 +39,16 @@ public class GenreRepository {
         films.forEach(x -> x.setGenres(loadGenres(x.getId())));
     }
 
-    private Collection<Genre> loadGenres(Long id) {
+    private Collection<Genre> loadGenres(Long filmId) {
         String sql = "SELECT g.ID, g.NAME FROM GENRES g, FILM_GENRES fg WHERE fg.FILM_ID = ? AND fg.GENRE_ID = g.ID";
-        return jdbcTemplate.query(sql, GenreRepository::makeGenre, id).stream()
+        return jdbcTemplate.query(sql, GenreRepository::makeGenre, filmId).stream()
                 .sorted(Comparator.comparing(Genre::getId, Integer::compareTo))
                 .collect(Collectors.toUnmodifiableList());
     }
 
     public void saveFilmGenres(Collection<Film> films) {
-        String sqlDelete = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
-        films.forEach(x -> jdbcTemplate.update(sqlDelete, x.getId()));
-
-        String sqlSave = "MERGE INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
-        films.forEach(x -> {
-            if(x.getGenres() != null){
-                x.getGenres().forEach(genre -> jdbcTemplate.update(sqlSave, x.getId(), genre.getId()));
-            }
-        });
+        filmGenresRepository.deleteFilmGenres(films);
+        filmGenresRepository.saveFilmGenres(films);
     }
 
     private static Genre makeGenre(ResultSet rs, int rowNum) throws SQLException {
