@@ -12,10 +12,11 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements ModelType {
+    @Generated
     protected Long id;
     @Email
     protected String email;

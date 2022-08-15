@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 @Component
@@ -21,6 +22,16 @@ public class InMemoryFilmStorage implements ModelStorage<Film> {
     @Override
     public void remove(Long id) {
         storage.remove(id);
+    }
+
+    @Override
+    public Film getById(Long id) {
+        return storage.get(id);
+    }
+
+    @Override
+    public Set<Film> getFriends(Long id) {
+        return null;
     }
 
     @Override
