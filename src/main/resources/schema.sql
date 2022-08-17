@@ -1,7 +1,20 @@
+create table IF NOT EXISTS DIRECTORS
+(
+    ID   INTEGER auto_increment,
+    NAME CHARACTER VARYING(100) not null
+);
+
+create unique index IF NOT EXISTS DIRECTORS_ID_UINDEX
+    on DIRECTORS (ID);
+
+alter table DIRECTORS
+    add constraint DIRECTORS_PK
+        primary key (ID);
+
 create table IF NOT EXISTS GENRES
 (
-    ID   INTEGER not null,
-    NAME CHARACTER VARYING(50) not null
+    ID   INTEGER               not null,
+    NAME CHARACTER VARYING(30) not null
 );
 
 create unique index IF NOT EXISTS GENRES_ID_UINDEX
@@ -16,8 +29,8 @@ alter table GENRES
 
 create table IF NOT EXISTS MPA
 (
-    ID          INTEGER                not null,
-    NAME        CHARACTER VARYING(5)   not null
+    ID   INTEGER              not null,
+    NAME CHARACTER VARYING(5) not null
 );
 
 create unique index IF NOT EXISTS MPA_ID_UINDEX
@@ -49,6 +62,18 @@ alter table FILMS
     add constraint FILMS_PK
         primary key (ID);
 
+create table IF NOT EXISTS FILM_DIRECTOR
+(
+    FILM_ID     INTEGER not null,
+    DIRECTOR_ID INTEGER not null,
+    constraint FILM_DIRECTOR_PK_2
+        primary key (FILM_ID, DIRECTOR_ID),
+    constraint FILM_DIRECTOR_DIRECTORS_ID_FK
+        foreign key (DIRECTOR_ID) references DIRECTORS,
+    constraint FILM_DIRECTOR_FILMS_ID_FK
+        foreign key (FILM_ID) references FILMS
+);
+
 create table IF NOT EXISTS FILM_GENRES
 (
     GENRE_ID INTEGER not null,
@@ -72,6 +97,25 @@ create table IF NOT EXISTS USERS
         primary key (ID)
 );
 
+create table IF NOT EXISTS EVENTS
+(
+    ID         INTEGER auto_increment,
+    EVENT_TIME TIMESTAMP             not null,
+    USER_ID    INTEGER               not null,
+    EVENT_TYPE CHARACTER VARYING(10) not null,
+    OPERATION  CHARACTER VARYING(10) not null,
+    ENTITY_ID  INTEGER               not null,
+    constraint EVENTS_USERS_ID_FK
+        foreign key (USER_ID) references USERS
+);
+
+create unique index IF NOT EXISTS EVENTS_ID_UINDEX
+    on EVENTS (ID);
+
+alter table EVENTS
+    add constraint EVENTS_PK
+        primary key (ID);
+
 create table IF NOT EXISTS FRIENDS
 (
     USER_ID   INTEGER not null,
@@ -93,6 +137,37 @@ create table IF NOT EXISTS LIKES
     constraint FK_LIKES_FILMS
         foreign key (FILM_ID) references FILMS,
     constraint FK_USERS
+        foreign key (USER_ID) references USERS
+);
+
+create table IF NOT EXISTS REVIEWS
+(
+    ID           INTEGER                not null,
+    CONTENT      CHARACTER VARYING(500) not null,
+    "isPositive" BOOLEAN                not null,
+    USER_ID      INTEGER                not null,
+    FILM_ID      INTEGER                not null,
+    constraint REVIEWS_PK
+        primary key (ID),
+    constraint REVIEWS_FILMS_ID_FK
+        foreign key (FILM_ID) references FILMS,
+    constraint REVIEWS_USERS_ID_FK
+        foreign key (USER_ID) references USERS
+);
+
+create unique index IF NOT EXISTS REVIEWS_ID_UINDEX
+    on REVIEWS (ID);
+
+create table IF NOT EXISTS REVIEW_USEFUL
+(
+    REVIEW_ID INTEGER not null,
+    USER_ID   INTEGER not null,
+    IS_LIKE   BOOLEAN not null,
+    constraint REVIEW_USEFUL_PK
+        primary key (REVIEW_ID, USER_ID),
+    constraint REVIEW_USEFUL_REVIEWS_ID_FK
+        foreign key (REVIEW_ID) references REVIEWS,
+    constraint REVIEW_USEFUL_USERS_ID_FK
         foreign key (USER_ID) references USERS
 );
 
