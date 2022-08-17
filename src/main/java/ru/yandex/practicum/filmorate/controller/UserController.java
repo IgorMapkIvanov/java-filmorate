@@ -37,6 +37,11 @@ public class UserController {
         return userService.searchCommonFriends(id, otherId);
     }
 
+    @GetMapping("/{id}/feed}")
+    public void feed(@PathVariable Long id){
+        //TODO
+    }
+
     // Post requests
     @PostMapping
     public User add(@Valid @RequestBody User user) {
