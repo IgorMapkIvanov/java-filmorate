@@ -7,6 +7,7 @@ import java.util.Collection;
 public interface FilmRepository {
     Collection<Film> getAll();
 
+    Collection<Film> getFilmByDirectorSorted(Integer id, String sort);
     Film add(Film film);
 
     Film update(Film film);

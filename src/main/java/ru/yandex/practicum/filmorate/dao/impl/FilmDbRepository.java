@@ -20,7 +20,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class FilmDbRepository implements FilmRepository {
     private final GenreRepository genreRepository;
-    private final FilmGenresRepository filmGenresRepository;
     private final LikesRepository likesRepository;
 
     private final JdbcTemplate jdbcTemplate;
@@ -76,9 +75,6 @@ public class FilmDbRepository implements FilmRepository {
 
     @Override
     public boolean delete(Long filmId) {
-        likesRepository.deleteFilmLikes(filmId);
-        filmGenresRepository.deleteFilmGenres(filmId);
-
         String sql = "DELETE FROM FILMS WHERE ID = ?";
         return jdbcTemplate.update(sql, filmId) > 0;
     }

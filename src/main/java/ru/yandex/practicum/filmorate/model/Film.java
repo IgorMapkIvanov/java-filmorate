@@ -27,4 +27,5 @@ public class Film implements ModelType{
     protected Mpa mpa;
     protected Set<Long> likes;
     protected Collection<Genre> genres;
+    protected Collection<Director> directors;
 }
