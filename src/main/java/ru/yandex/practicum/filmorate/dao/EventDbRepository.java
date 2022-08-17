@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.EventType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 @Repository
@@ -22,7 +23,6 @@ public class EventDbRepository {
         return jdbcTemplate.query(sql, EventDbRepository::makeEvent, id);
     }
 
-
     private static Event makeEvent(ResultSet rs, int rowNum) throws SQLException {
         return Event.builder()
                 .id(rs.getLong("id"))
@@ -32,5 +32,15 @@ public class EventDbRepository {
                 .operation(EventOperation.valueOf(rs.getString("operation")))
                 .entityId(rs.getLong("entity_id"))
                 .build();
+    }
+
+    public void addEvent(Long userId, Long entityId, EventType type, EventOperation operation) {
+        String sql = "INSERT INTO EVENTS (EVENT_TIME, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)\n" +
+                "VALUES (?,?,?,?,?)";
+        jdbcTemplate.update(sql, Timestamp.valueOf(LocalDateTime.now()),
+                userId,
+                type,
+                operation,
+                entityId);
     }
 }

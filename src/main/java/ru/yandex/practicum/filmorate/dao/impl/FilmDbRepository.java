@@ -6,6 +6,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.*;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
@@ -22,6 +24,7 @@ public class FilmDbRepository implements FilmRepository {
     private final GenreRepository genreRepository;
     private final LikesRepository likesRepository;
     private final DirectorRepository directorRepository;
+    private final EventDbRepository eventDbRepository;
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -141,12 +144,16 @@ public class FilmDbRepository implements FilmRepository {
 
     @Override
     public boolean addLike(Long filmId, Long userId) {
-        return likesRepository.addLike(filmId, userId);
+        boolean isLike = likesRepository.addLike(filmId, userId);
+        eventDbRepository.addEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
+        return isLike;
     }
 
     @Override
     public boolean deleteLike(Long filmId, Long userId) {
-        return likesRepository.deleteLike(filmId, userId);
+        boolean isLike = likesRepository.deleteLike(filmId, userId);
+        eventDbRepository.addEvent(userId, filmId, EventType.LIKE, EventOperation.DELETE);
+        return isLike;
     }
 
     private static Film makeFilm(ResultSet rs, int i) throws SQLException {
