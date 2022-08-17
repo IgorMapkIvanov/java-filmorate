@@ -69,9 +69,11 @@ create table IF NOT EXISTS FILM_DIRECTOR
     constraint FILM_DIRECTOR_PK_2
         primary key (FILM_ID, DIRECTOR_ID),
     constraint FILM_DIRECTOR_DIRECTORS_ID_FK
-        foreign key (DIRECTOR_ID) references DIRECTORS,
+        foreign key (DIRECTOR_ID) references DIRECTORS
+            on delete cascade,
     constraint FILM_DIRECTOR_FILMS_ID_FK
         foreign key (FILM_ID) references FILMS
+            on delete cascade
 );
 
 create table IF NOT EXISTS FILM_GENRES
@@ -81,9 +83,11 @@ create table IF NOT EXISTS FILM_GENRES
     constraint FILM_GENRES_PK
         primary key (GENRE_ID, FILM_ID),
     constraint FK_FILMS
-        foreign key (FILM_ID) references FILMS,
+        foreign key (FILM_ID) references FILMS
+            on delete cascade,
     constraint FK_GENRES
         foreign key (GENRE_ID) references GENRES
+            on delete cascade
 );
 
 create table IF NOT EXISTS USERS
@@ -107,6 +111,7 @@ create table IF NOT EXISTS EVENTS
     ENTITY_ID  INTEGER               not null,
     constraint EVENTS_USERS_ID_FK
         foreign key (USER_ID) references USERS
+            on delete cascade
 );
 
 create unique index IF NOT EXISTS EVENTS_ID_UINDEX
@@ -123,9 +128,11 @@ create table IF NOT EXISTS FRIENDS
     constraint FRIENDS_PK
         primary key (USER_ID, FRIEND_ID),
     constraint FK_FRIENDS_USERS
-        foreign key (USER_ID) references USERS,
+        foreign key (USER_ID) references USERS
+            on delete cascade,
     constraint FK_FRIENDS_USERS_2
         foreign key (FRIEND_ID) references USERS
+            on delete cascade
 );
 
 create table IF NOT EXISTS LIKES
@@ -135,9 +142,11 @@ create table IF NOT EXISTS LIKES
     constraint LIKES_KEY
         primary key (FILM_ID, USER_ID),
     constraint FK_LIKES_FILMS
-        foreign key (FILM_ID) references FILMS,
+        foreign key (FILM_ID) references FILMS
+            on delete cascade,
     constraint FK_USERS
         foreign key (USER_ID) references USERS
+            on delete cascade
 );
 
 create table IF NOT EXISTS REVIEWS
@@ -150,9 +159,11 @@ create table IF NOT EXISTS REVIEWS
     constraint REVIEWS_PK
         primary key (ID),
     constraint REVIEWS_FILMS_ID_FK
-        foreign key (FILM_ID) references FILMS,
+        foreign key (FILM_ID) references FILMS
+            on delete cascade,
     constraint REVIEWS_USERS_ID_FK
         foreign key (USER_ID) references USERS
+            on delete cascade
 );
 
 create unique index IF NOT EXISTS REVIEWS_ID_UINDEX
@@ -166,9 +177,11 @@ create table IF NOT EXISTS REVIEW_USEFUL
     constraint REVIEW_USEFUL_PK
         primary key (REVIEW_ID, USER_ID),
     constraint REVIEW_USEFUL_REVIEWS_ID_FK
-        foreign key (REVIEW_ID) references REVIEWS,
+        foreign key (REVIEW_ID) references REVIEWS
+            on delete cascade,
     constraint REVIEW_USEFUL_USERS_ID_FK
         foreign key (USER_ID) references USERS
+            on delete cascade
 );
 
 create unique index IF NOT EXISTS USERS_EMAIL_UINDEX
