@@ -20,7 +20,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class FilmDbRepository implements FilmRepository {
     private final GenreRepository genreRepository;
-    private final FilmGenresRepository filmGenresRepository;
     private final LikesRepository likesRepository;
 
     private final DirectorRepository directorRepository;
