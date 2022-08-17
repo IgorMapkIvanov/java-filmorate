@@ -6,7 +6,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.FriendsRepository;
-import ru.yandex.practicum.filmorate.dao.LikesRepository;
 import ru.yandex.practicum.filmorate.dao.UserRepository;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -19,7 +18,6 @@ import java.util.*;
 @Repository
 @RequiredArgsConstructor
 public class UserDbRepository implements UserRepository {
-    private final LikesRepository likesRepository;
     private final FriendsRepository friendsRepository;
     private final JdbcTemplate jdbcTemplate;
 
@@ -57,9 +55,6 @@ public class UserDbRepository implements UserRepository {
 
     @Override
     public boolean delete(Long id) {
-        likesRepository.deleteUserLikes(id);
-        friendsRepository.deleteFriends(id);
-
         String sqlDelFromUsers = "DELETE FROM USERS WHERE ID = ?";
         return jdbcTemplate.update(sqlDelFromUsers, id) > 0;
     }
