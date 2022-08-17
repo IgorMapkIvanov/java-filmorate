@@ -68,7 +68,6 @@ public class DirectorRepository {
     }
 
     public boolean delete(Integer id) {
-        filmDirectorsRepository.deleteFilmDirectors(id);
         String sql = "DELETE FROM DIRECTORS WHERE ID = ?";
         return jdbcTemplate.update(sql, id) > 0;
     }
