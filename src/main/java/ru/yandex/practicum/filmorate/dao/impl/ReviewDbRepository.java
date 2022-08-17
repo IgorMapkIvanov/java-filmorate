@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.OptionalInt;
 
 @Component
 @AllArgsConstructor
@@ -86,10 +87,11 @@ public class ReviewDbRepository implements ReviewsRepository {
     }
 
     @Override
-    public void removeReviewById(long id) {
+    public Review removeReviewById(long id) {
         reviewDBValidation(id);
-
+        Review review = getReviewById(id);
         jdbcTemplate.update("DELETE FROM REVIEWS WHERE ID = ?", id);
+        return review;
     }
 
     @Override

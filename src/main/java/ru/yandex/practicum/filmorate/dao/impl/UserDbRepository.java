@@ -19,6 +19,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserDbRepository implements UserRepository {
     private final FriendsRepository friendsRepository;
+
     private final JdbcTemplate jdbcTemplate;
 
     @Override

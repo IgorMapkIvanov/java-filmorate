@@ -1,16 +1,16 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.EventDbRepository;
 import ru.yandex.practicum.filmorate.dao.impl.FilmDbRepository;
 import ru.yandex.practicum.filmorate.dao.impl.ReviewDbRepository;
 import ru.yandex.practicum.filmorate.dao.impl.UserDbRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.Collection;
@@ -21,13 +21,18 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ReviewsService {
     private final ReviewDbRepository reviewDbRepository;
+    private final EventDbRepository eventDbRepository;
     private final UserDbRepository userDbRepository;
     private final FilmDbRepository filmDbRepository;
 
     public Review addReview(Review review) {
         newReviewBaseValidation(review);
-
-        return reviewDbRepository.addReview(review);
+        Review addedReview = reviewDbRepository.addReview(review);
+        eventDbRepository.addEvent(addedReview.getUserId(),
+                addedReview.getId(),
+                EventType.REVIEW,
+                EventOperation.ADD);
+        return addedReview;
     }
 
     public Review getReviewById(long id) throws NotFoundException {
@@ -36,12 +41,20 @@ public class ReviewsService {
 
     public Review updateReview(Review review) {
         updatedReviewValidation(review);
-
-        return reviewDbRepository.updateReview(review);
+        Review updatedReview = reviewDbRepository.updateReview(review);
+        eventDbRepository.addEvent(updatedReview.getUserId(),
+                updatedReview.getId(),
+                EventType.REVIEW,
+                EventOperation.UPDATE);
+        return updatedReview;
     }
 
     public void removeReviewById(long id) {
-        reviewDbRepository.removeReviewById(id);
+        Review removedReview = reviewDbRepository.removeReviewById(id);
+        eventDbRepository.addEvent(removedReview.getUserId(),
+                removedReview.getId(),
+                EventType.REVIEW,
+                EventOperation.DELETE);
     }
 
     public Collection<Review> getAllReviews(long filmId, int numOfReviews) {

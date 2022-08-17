@@ -22,10 +22,9 @@ public class FilmDbRepository implements FilmRepository {
     private final GenreRepository genreRepository;
     private final LikesRepository likesRepository;
     private final DirectorRepository directorRepository;
+    private final MpaRepository mpaRepository;
 
     private final JdbcTemplate jdbcTemplate;
-
-    private final MpaRepository mpaRepository;
 
     @Override
     public Collection<Film> getAll() {
@@ -43,7 +42,7 @@ public class FilmDbRepository implements FilmRepository {
         if (sort.equalsIgnoreCase("year")){
         sql = "SELECT f.*,\n" +
                 "        m.NAME MPA_NAME\n" +
-                "        FROM FILMS f, MPA m \n" +
+                "        FROM FILMS f, MPA m\n" +
                 "        WHERE f.MPA_ID = m.ID AND f.ID in (\n" +
                 "            SELECT fd.FILM_ID\n" +
                 "            FROM FILM_DIRECTOR as fd\n" +
@@ -51,9 +50,8 @@ public class FilmDbRepository implements FilmRepository {
                 "            )  \n" +
                 "ORDER BY f.RELEASE_DATE;";}
         else if(sort.equalsIgnoreCase("likes")){
-        sql = "SELECT f.*,\n" +
-                "       m.NAME MPA_NAME\n" +
-                "           FROM FILMS f, MPA m \n" +
+        sql = "SELECT f.*, m.NAME MPA_NAME\n" +
+                "       FROM FILMS f, MPA m \n" +
                 "WHERE f.MPA_ID = m.ID AND (select f.ID from FILMS\n" +
                 "    left join LIKES L on FILMS.ID = L.FILM_ID\n" +
                 "    WHERE f.ID in (\n" +
