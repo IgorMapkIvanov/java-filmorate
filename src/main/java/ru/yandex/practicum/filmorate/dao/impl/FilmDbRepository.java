@@ -7,7 +7,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -25,10 +24,12 @@ public class FilmDbRepository implements FilmRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private final MpaRepository mpaRepository;
+
     @Override
     public Collection<Film> getAll() {
         String sql = "SELECT f.*, m.NAME MPA_NAME FROM FILMS f, MPA m WHERE f.MPA_ID = m.ID";
-        Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm);
+        Collection<Film> films = jdbcTemplate.query(sql, this::makeFilm);
         films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
         genreRepository.loadFilmGenres(films);
         directorRepository.loadFilmDirectors(films);
@@ -84,7 +85,7 @@ public class FilmDbRepository implements FilmRepository {
             return stmt;
         }, keyHolder);
         film.setId(keyHolder.getKey().longValue());
-        if(film.getGenres() != null && film.getGenres().size() > 0){
+        if (film.getGenres() != null && film.getGenres().size() > 0) {
             genreRepository.saveFilmGenres(List.of(film));
         }
         if(film.getDirectors() != null && film.getDirectors().size() > 0){
@@ -104,7 +105,7 @@ public class FilmDbRepository implements FilmRepository {
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId());
-        if(countUpdateRows > 0){
+        if (countUpdateRows > 0) {
             genreRepository.saveFilmGenres(List.of(film));
             genreRepository.loadFilmGenres(List.of(film));
             directorRepository.saveFilmDirectors(List.of(film));
@@ -124,8 +125,8 @@ public class FilmDbRepository implements FilmRepository {
     @Override
     public Film getById(Long id) {
         String sql = "SELECT f.*, m.NAME MPA_NAME FROM FILMS f, MPA m WHERE f.ID = ? AND f.MPA_ID = m.ID";
-        List<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, id);
-        if (films.size() != 1){
+        List<Film> films = jdbcTemplate.query(sql, this::makeFilm, id);
+        if (films.size() != 1) {
             return null;
         }
         genreRepository.loadFilmGenres(films);
@@ -135,7 +136,7 @@ public class FilmDbRepository implements FilmRepository {
     }
 
     @Override
-    public void loadLikes(Collection<Film> films){
+    public void loadLikes(Collection<Film> films) {
         films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
     }
 
@@ -149,13 +150,29 @@ public class FilmDbRepository implements FilmRepository {
         return likesRepository.deleteLike(filmId, userId);
     }
 
-    private static Film makeFilm(ResultSet rs, int i) throws SQLException {
+    @Override
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        String sql = "select f.* from  FILMS f, LIKES l1, LIKES l2 " +
+                "where f.ID = l1.FILM_ID " +
+                "and f.ID = l2.FILM_ID " +
+                "and l1.USER_ID = ? " +
+                "and l2.USER_ID = ?";
+        return jdbcTemplate.query(sql, this::makeFilm, userId, friendId);
+    }
+
+    private Film makeFilm(ResultSet rs, int i) throws SQLException {
         return new Film(rs.getLong("ID"),
                 rs.getString("NAME"),
                 rs.getString("DESCRIPTION"),
                 rs.getDate("RELEASE_DATE").toLocalDate(),
                 rs.getInt("DURATION"),
-                new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME")),
+                /*new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME"))
+                Поменяла эту строчку т.к в таблице FILMS нет строки MPA_NAME.
+                При запросе к БД вылетал stack trace cannot find column name MPA_NAME.
+                Так же в остальном могут быть проблемы при работе с БД если не заменить
+                получение класса MPA из таблицы MPA. Так же считаю нужным сделать по аналогии
+                для получение жанров фильма.*/
+                mpaRepository.getById(rs.getLong("MPA_ID")),
                 new HashSet<>(),
                 new ArrayList<>(),new ArrayList<>());
     }
