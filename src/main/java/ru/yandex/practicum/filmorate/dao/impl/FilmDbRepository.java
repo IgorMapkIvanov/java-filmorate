@@ -23,9 +23,7 @@ public class FilmDbRepository implements FilmRepository {
     private final LikesRepository likesRepository;
 
     private final DirectorRepository directorRepository;
-
-    private final FilmDirectorsRepository filmDirectorsRepository;
-
+    
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -52,12 +50,7 @@ public class FilmDbRepository implements FilmRepository {
                 "            )  \n" +
                 "ORDER BY f.RELEASE_DATE;";}
         else if(sort.equalsIgnoreCase("likes")){
-        sql = "SELECT f.ID,\n" +
-                "       f.NAME,\n" +
-                "       f.DESCRIPTION,\n" +
-                "       f.DURATION,\n" +
-                "       f.RELEASE_DATE,\n" +
-                "       m.ID MPA_ID,\n" +
+        sql = "SELECT f.*\n" +
                 "       m.NAME MPA_NAME\n" +
                 "           FROM FILMS f\n" +
                 "    join MPA m on m.ID = f.MPA_ID\n" +
