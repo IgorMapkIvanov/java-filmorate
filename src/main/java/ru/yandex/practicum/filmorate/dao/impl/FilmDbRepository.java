@@ -23,6 +23,10 @@ public class FilmDbRepository implements FilmRepository {
     private final FilmGenresRepository filmGenresRepository;
     private final LikesRepository likesRepository;
 
+    private final DirectorRepository directorRepository;
+
+    private final FilmDirectorsRepository filmDirectorsRepository;
+
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -31,6 +35,48 @@ public class FilmDbRepository implements FilmRepository {
         Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm);
         films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
         genreRepository.loadFilmGenres(films);
+        directorRepository.loadFilmDirectors(films);
+        return films;
+    }
+
+    @Override
+    public Collection<Film> getFilmByDirectorSorted(Integer id, String sort){
+        String sql ="";
+        if (sort.equals("year")){
+        sql = "SELECT f.*,\n" +
+                "        m.NAME MPA_NAME\n" +
+                "        FROM FILMS f, MPA m\n" +
+                "        WHERE f.MPA_ID = m.ID AND f.ID in (\n" +
+                "            SELECT fd.FILM_ID\n" +
+                "            FROM FILM_DIRECTOR as fd\n" +
+                "            WHERE fd.DIRECTOR_ID = ?\n" +
+                "            )  \n" +
+                "ORDER BY f.RELEASE_DATE;";}
+        else if(sort.equals("likes")){
+        sql = "SELECT f.ID,\n" +
+                "       f.NAME,\n" +
+                "       f.DESCRIPTION,\n" +
+                "       f.DURATION,\n" +
+                "       f.RELEASE_DATE,\n" +
+                "       m.ID MPA_ID,\n" +
+                "       m.NAME MPA_NAME\n" +
+                "           FROM FILMS f\n" +
+                "    join MPA m on m.ID = f.MPA_ID\n" +
+                "WHERE (select f.ID from FILMS\n" +
+                "    left join LIKES L on FILMS.ID = L.FILM_ID\n" +
+                "    WHERE f.ID in (\n" +
+                "    SELECT fd.FILM_ID\n" +
+                "    FROM FILM_DIRECTOR as fd\n" +
+                "    WHERE fd.DIRECTOR_ID = ?\n" +
+                "    )\n" +
+                "    group by f.ID\n" +
+                "    order by count(l.USER_ID)desc)\n" +
+                ";";
+        }
+        Collection<Film> films = jdbcTemplate.query(sql,FilmDbRepository::makeFilm,id);
+        films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
+        genreRepository.loadFilmGenres(films);
+        directorRepository.loadFilmDirectors(films);
         return films;
     }
 
@@ -51,6 +97,9 @@ public class FilmDbRepository implements FilmRepository {
         if(film.getGenres() != null && film.getGenres().size() > 0){
             genreRepository.saveFilmGenres(List.of(film));
         }
+        if(film.getDirectors() != null && film.getDirectors().size() > 0){
+            directorRepository.saveFilmDirectors(List.of(film));
+        }
         return film;
     }
 
@@ -68,6 +117,8 @@ public class FilmDbRepository implements FilmRepository {
         if(countUpdateRows > 0){
             genreRepository.saveFilmGenres(List.of(film));
             genreRepository.loadFilmGenres(List.of(film));
+            directorRepository.saveFilmDirectors(List.of(film));
+            directorRepository.loadFilmDirectors(List.of(film));
             film.setLikes(likesRepository.loadLikes(film.getId()));
             return film;
         }
@@ -78,6 +129,7 @@ public class FilmDbRepository implements FilmRepository {
     public boolean delete(Long filmId) {
         likesRepository.deleteFilmLikes(filmId);
         filmGenresRepository.deleteFilmGenres(filmId);
+        filmDirectorsRepository.deleteFilmDirectors(filmId);
 
         String sql = "DELETE FROM FILMS WHERE ID = ?";
         return jdbcTemplate.update(sql, filmId) > 0;
@@ -91,6 +143,7 @@ public class FilmDbRepository implements FilmRepository {
             return null;
         }
         genreRepository.loadFilmGenres(films);
+        directorRepository.loadFilmDirectors(films);
         loadLikes(films);
         return films.get(0);
     }
@@ -118,6 +171,6 @@ public class FilmDbRepository implements FilmRepository {
                 rs.getInt("DURATION"),
                 new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME")),
                 new HashSet<>(),
-                new ArrayList<>());
+                new ArrayList<>(),new ArrayList<>());
     }
 }
