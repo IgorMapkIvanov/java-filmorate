@@ -35,7 +35,7 @@ class FilmDbRepositoryTest {
                 100,
                 new Mpa(2, "PG"),
                 null,
-                null);
+                null,null);
 
         assertThat(filmRepo.add(newFilm).getId()).isEqualTo(3L);
     }
@@ -49,7 +49,7 @@ class FilmDbRepositoryTest {
                 100,
                 new Mpa(2, "PG"),
                 null,
-                null);
+                null,null);
 
         Film updateFilm = filmRepo.update(newFilm);
 
