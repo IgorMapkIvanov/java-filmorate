@@ -43,7 +43,7 @@ public class FilmDbRepository implements FilmRepository {
     @Override
     public Collection<Film> getFilmByDirectorSorted(Integer id, String sort){
         String sql ="";
-        if (sort.equals("year")){
+        if (sort.equalsIgnoreCase("year")){
         sql = "SELECT f.*,\n" +
                 "        m.NAME MPA_NAME\n" +
                 "        FROM FILMS f, MPA m\n" +
@@ -53,7 +53,7 @@ public class FilmDbRepository implements FilmRepository {
                 "            WHERE fd.DIRECTOR_ID = ?\n" +
                 "            )  \n" +
                 "ORDER BY f.RELEASE_DATE;";}
-        else if(sort.equals("likes")){
+        else if(sort.equalsIgnoreCase("likes")){
         sql = "SELECT f.ID,\n" +
                 "       f.NAME,\n" +
                 "       f.DESCRIPTION,\n" +
