@@ -8,7 +8,7 @@ create unique index IF NOT EXISTS DIRECTORS_ID_UINDEX
     on DIRECTORS (ID);
 
 alter table DIRECTORS
-    add constraint DIRECTORS_PK
+    add constraint IF NOT EXISTS DIRECTORS_PK
         primary key (ID);
 
 create table IF NOT EXISTS GENRES
@@ -24,7 +24,7 @@ create unique index IF NOT EXISTS GENRES_NAME_UINDEX
     on GENRES (NAME);
 
 alter table GENRES
-    add constraint GENRES_PK
+    add constraint IF NOT EXISTS GENRES_PK
         primary key (ID);
 
 create table IF NOT EXISTS MPA
@@ -40,7 +40,7 @@ create unique index IF NOT EXISTS MPA_NAME_UINDEX
     on MPA (NAME);
 
 alter table MPA
-    add constraint MPA_PK
+    add constraint IF NOT EXISTS MPA_PK
         primary key (ID);
 
 create table IF NOT EXISTS FILMS
@@ -59,7 +59,7 @@ create unique index IF NOT EXISTS FILMS_FILM_ID_UINDEX
     on FILMS (ID);
 
 alter table FILMS
-    add constraint FILMS_PK
+    add constraint IF NOT EXISTS FILMS_PK
         primary key (ID);
 
 create table IF NOT EXISTS FILM_DIRECTOR
@@ -118,7 +118,7 @@ create unique index IF NOT EXISTS EVENTS_ID_UINDEX
     on EVENTS (ID);
 
 alter table EVENTS
-    add constraint EVENTS_PK
+    add constraint IF NOT EXISTS EVENTS_PK
         primary key (ID);
 
 create table IF NOT EXISTS FRIENDS
@@ -151,9 +151,9 @@ create table IF NOT EXISTS LIKES
 
 create table IF NOT EXISTS REVIEWS
 (
-    ID           INTEGER                not null,
+    ID    IDENTITY               not null,
     CONTENT      CHARACTER VARYING(500) not null,
-    "isPositive" BOOLEAN                not null,
+    IS_POSITIVE   BOOLEAN                not null,
     USER_ID      INTEGER                not null,
     FILM_ID      INTEGER                not null,
     constraint REVIEWS_PK
@@ -173,7 +173,7 @@ create table IF NOT EXISTS REVIEW_USEFUL
 (
     REVIEW_ID INTEGER not null,
     USER_ID   INTEGER not null,
-    IS_LIKE   BOOLEAN not null,
+    RATE      INTEGER,
     constraint REVIEW_USEFUL_PK
         primary key (REVIEW_ID, USER_ID),
     constraint REVIEW_USEFUL_REVIEWS_ID_FK
