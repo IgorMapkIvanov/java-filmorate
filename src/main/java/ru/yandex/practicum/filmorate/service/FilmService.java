@@ -3,8 +3,10 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.DirectorRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.dao.FilmRepository;
 
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmRepository repository;
+    private final DirectorRepository directorRepository;
 
     public void validation(Film film) {
         if (film.getId() != null && film.getId()<= 0L){
@@ -43,6 +46,16 @@ public class FilmService {
         return films;
     }
 
+
+    public Collection<Film> getFilmByDirectorSorted(Integer id, String sort){
+        if(directorRepository.getById(id) == null){
+            log.warn("Director with ID = {}, not found.", id);
+            throw new NotFoundException(String.format("Director with id = %s, not found", id));
+        }
+        Collection<Film> films = repository.getFilmByDirectorSorted(id,sort);
+        log.info("Send data of all films.");
+        return films;
+    }
     public Film add(Film film) {
         validation(film);
         Film addFilm = repository.add(film);
