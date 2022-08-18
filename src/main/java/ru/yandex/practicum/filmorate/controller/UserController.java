@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -38,8 +39,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}/feed}")
-    public void feed(@PathVariable Long id){
-        //TODO
+    public Collection<Event> feed(@PathVariable Long id){
+        return userService.feed(id);
     }
 
     // Post requests

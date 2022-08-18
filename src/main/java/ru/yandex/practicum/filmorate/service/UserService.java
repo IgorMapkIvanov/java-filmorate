@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.EventDbRepository;
 import ru.yandex.practicum.filmorate.dao.UserRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -19,6 +21,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository repository;
+    private final EventDbRepository eventDBrepository;
 
     public void validation(User user) {
         if (user.getId() != null && user.getId()<= 0L){
@@ -138,5 +141,11 @@ public class UserService {
             log.info("User with ID = {}, not found", friendId);
             throw new NotFoundException(String.format("User with ID = %s, not found", friendId));
         }
+    }
+
+    public Collection<Event> feed(Long id) {
+        Collection<Event> events = eventDBrepository.feed(id);
+        log.info("Send data of all event by user with ID = {}.", id);
+        return events;
     }
 }
