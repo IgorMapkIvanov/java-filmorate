@@ -65,6 +65,7 @@ class GenreRepositoryTest {
                 97,
                 new Mpa(1, "G"),
                 null,
+                null,
                 null);
         String sqlAddFilm = "INSERT INTO FILMS (NAME, DESCRIPTION,DURATION, RELEASE_DATE, MPA_ID) VALUES (?,?,?,?,?)";
         String sqlAddFilmGenres = "INSERT INTO FILM_GENRES (GENRE_ID, FILM_ID) VALUES (2, 1)";
