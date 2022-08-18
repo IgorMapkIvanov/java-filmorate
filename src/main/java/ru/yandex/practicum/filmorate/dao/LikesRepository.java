@@ -11,15 +11,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class LikesRepository {
     private final JdbcTemplate jdbcTemplate;
-    public void deleteUserLikes(Long id) {
-        String sqlDelFromLikes = "DELETE FROM LIKES WHERE USER_ID = ?";
-        jdbcTemplate.update(sqlDelFromLikes, id);
-    }
-
-    public void deleteFilmLikes(Long filmId) {
-        String sqlDelFromLikes = "DELETE FROM LIKES WHERE FILM_ID = ?";
-        jdbcTemplate.update(sqlDelFromLikes, filmId);
-    }
 
     public Set<Long> loadLikes(Long id) {
         String sql = "SELECT USER_ID FROM LIKES WHERE FILM_ID = ?";
