@@ -33,7 +33,7 @@ public class Recommend {
         /**На основе имеющихся данных мы рассчитаем отношения между элементами, а также количество вхождений элементов.
          * Для каждого пользователя мы проверяем его/ее рейтинг предметов:
          for (HashMap<Item, Double> user : data.values()) {
-         for (Entry<Item, Double> e : user.entrySet()) {    <---
+         for (Entry<Item, Double> e : user.entrySet()) {
          // ... }} */
         for (HashMap<Long, Double> entry : data.values()) {
             for (Map.Entry<Long, Double> entryData : entry.entrySet()) {
@@ -42,14 +42,13 @@ public class Recommend {
                  * if (!diff.containsKey(e.getKey())) {
                  *     diff.put(e.getKey(), new HashMap<Item, Double>());
                  *     freq.put(e.getKey(), new HashMap<Item, Integer>());
-                 * }
-                 */
+                 * }  */
                 if (!matrixOfDiff.containsKey(entryData.getKey())) {
                     matrixOfDiff.put(entryData.getKey(), new HashMap<>());
                     matrixOfFreq.put(entryData.getKey(), new HashMap<>());
                 }
                 /** На следующем шаге мы собираемся сравнить рейтинги всех элементов:
-                 * for (Entry<Item, Double> e2 : user.entrySet()) {                         // УДАЛИТЬ !!!
+                 * for (Entry<Item, Double> e2 : user.entrySet()) {
                  *     int oldCount = 0;
                  *     if (freq.get(e.getKey()).containsKey(e2.getKey())){
                  *         oldCount = freq.get(e.getKey()).get(e2.getKey()).intValue();
@@ -62,7 +61,7 @@ public class Recommend {
                  *
                  *     double observedDiff = e.getValue() - e2.getValue();
                  *     freq.get(e.getKey()).put(e2.getKey(), oldCount + 1);
-                 *     diff.get(e.getKey()).put(e2.getKey(), oldDiff + observedDiff);       // УДАЛИТЬ !!!
+                 *     diff.get(e.getKey()).put(e2.getKey(), oldDiff + observedDiff);
                  * } */
                 for (Map.Entry<Long, Double> entryData2 : entry.entrySet()) {
                     int oldCount = 0;
@@ -75,7 +74,7 @@ public class Recommend {
                         oldDiff = matrixOfDiff.get(entryData.getKey()).get(entryData2.getKey()).doubleValue();
                     }
 
-                    double observedDiff = entryData.getKey() - entryData2.getKey();
+                    double observedDiff = userLike.get(entryData.getValue() - entryData2.getValue());
                     matrixOfFreq.get(entryData.getKey()).put(entryData2.getKey(), oldCount + 1);
                     matrixOfDiff.get(entryData.getKey()).put(entryData2.getKey(), oldDiff + observedDiff);
 
