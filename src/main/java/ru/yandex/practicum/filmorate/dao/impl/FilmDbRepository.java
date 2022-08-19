@@ -22,8 +22,6 @@ public class FilmDbRepository implements FilmRepository {
     private final GenreRepository genreRepository;
     private final LikesRepository likesRepository;
     private final DirectorRepository directorRepository;
-
-    private final DirectorRepository directorRepository;
     
     private final JdbcTemplate jdbcTemplate;
 
