@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewsService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @RestController
@@ -21,13 +23,13 @@ public class ReviewsController {
     }
 
     @PostMapping("/reviews")
-    public Review addReview(@Validated @RequestBody Review review) {
+    public Review addReview(@Valid @RequestBody Review review) {
         System.out.println(review);
         return reviewsService.addReview(review);
     }
 
     @PutMapping("/reviews")
-    public Review updateReview(@Validated @RequestBody Review review) {
+    public Review updateReview(@Valid @RequestBody Review review) {
         return reviewsService.updateReview(review);
     }
 

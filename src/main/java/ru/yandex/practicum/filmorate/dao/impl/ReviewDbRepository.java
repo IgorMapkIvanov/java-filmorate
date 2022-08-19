@@ -1,41 +1,59 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.ReviewsRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Objects;
 
 @Component
+@RequiredArgsConstructor
 public class ReviewDbRepository implements ReviewsRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final UserDbRepository userDbRepository;
 
-    @Autowired
-    ReviewDbRepository(JdbcTemplate jdbcTemplate, UserDbRepository userDbRepository) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.userDbRepository = userDbRepository;
-    }
-
     @Override
     public Review addReview(Review review) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        int filmId = review.getFilmId();
-        int userId = review.getUserId();
+        Integer filmId = review.getFilmId();
+        Long userId = review.getUserId();
+        Boolean isPositive = review.getIsPositive();
+        String content = review.getContent();
+
+        if(filmId == 0) {
+            throw new ValidationException("Incorrect film id:" + filmId);
+        }
+
 
         idValidation(filmId);
         userValidation(userId);
+
+        if(isPositive == null) {
+            throw new ValidationException("Incorrect positivity of review");
+        }
+
+        if(content == null) {
+            throw new ValidationException("Content can't be empty");
+        }
+
 
         jdbcTemplate.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(
@@ -43,9 +61,9 @@ public class ReviewDbRepository implements ReviewsRepository {
             , new String[]{"ID"});
 
             statement.setInt(1, filmId);
-            statement.setInt(2, userId);
-            statement.setBoolean(3, review.getIsPositive());
-            statement.setString(4, review.getContent());
+            statement.setLong(2, userId);
+            statement.setBoolean(3, isPositive);
+            statement.setString(4, content);
 
             return statement;
         }, keyHolder);
@@ -61,7 +79,6 @@ public class ReviewDbRepository implements ReviewsRepository {
                     "left join " +
                             "(select REVIEW_ID, sum(RATE) RATE from REVIEW_USEFUL group by REVIEW_ID) r_sum " +
                     "on r_sum.REVIEW_ID = r.ID " +
-                    "ORDER BY r_sum.rate DESC " +
                     "LIMIT ?"
                     , ((rs, rowNum) -> makeReview(rs)), count);
         } else {
@@ -70,7 +87,6 @@ public class ReviewDbRepository implements ReviewsRepository {
                             "(select REVIEW_ID, sum(RATE) RATE from REVIEW_USEFUL group by REVIEW_ID) r_sum " +
                             "on r_sum.REVIEW_ID = r.ID " +
                             "WHERE r.FILM_ID = ?" +
-                            "ORDER BY r_sum.rate DESC " +
                             "LIMIT ? "
                     , ((rs, rowNum) -> makeReview(rs)), filmId, count);
         }
@@ -159,7 +175,7 @@ public class ReviewDbRepository implements ReviewsRepository {
         int rating;
         int reviewId = rs.getInt("id");
         int filmId = rs.getInt("film_Id");
-        int userId = rs.getInt("user_Id");
+        Long userId = rs.getLong("user_Id");
 
         idValidation(filmId);
         userValidation(userId);
@@ -184,8 +200,14 @@ public class ReviewDbRepository implements ReviewsRepository {
                 .build();
     }
 
-    private void idValidation(long id) {
-        if (id < 0) {
+    private void idValidation(Long id) {
+        if (id < 1) {
+            throw new NotFoundException("Incorrect id:" + id);
+        }
+    }
+
+    private void idValidation(int id) {
+        if (id < 1) {
             throw new NotFoundException("Incorrect id:" + id);
         }
     }
