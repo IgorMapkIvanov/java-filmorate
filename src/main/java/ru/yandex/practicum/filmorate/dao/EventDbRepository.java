@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.EventType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 @Repository
@@ -23,6 +24,7 @@ public class EventDbRepository {
     }
 
 
+
     private static Event makeEvent(ResultSet rs, int rowNum) throws SQLException {
         return Event.builder()
                 .id(rs.getLong("id"))
@@ -32,5 +34,49 @@ public class EventDbRepository {
                 .operation(EventOperation.valueOf(rs.getString("operation")))
                 .entityId(rs.getLong("entity_id"))
                 .build();
+    }
+
+    public void addFilmEvent(Long userId, Long filmId, EventType type, EventOperation operation) {
+        switch (operation) {
+            case ADD:
+                addFilmLike(userId, filmId, type, operation);
+                break;
+            case UPDATE:
+                updateFilmLike(userId, filmId, type, operation);
+                break;
+            case DELETE:
+                deleteFilmLike(userId, filmId, type, operation);
+                break;
+        }
+    }
+
+    private void addFilmLike(Long userId, Long filmId, EventType type, EventOperation operation){
+        String sql = "INSERT INTO EVENTS (EVENT_TIME, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)\n" +
+                "VALUES (?,?,?,?,?)";
+        jdbcTemplate.update(sql, Timestamp.valueOf(LocalDateTime.now()),
+                userId,
+                type,
+                operation,
+                filmId);
+    }
+
+    private void updateFilmLike(Long userId, Long filmId, EventType type, EventOperation operation){
+        String sql = "MERGE INTO EVENTS (EVENT_TIME, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)\n" +
+                "VALUES (?,?,?,?,?)";
+        jdbcTemplate.update(sql, Timestamp.valueOf(LocalDateTime.now()),
+                userId,
+                type,
+                operation,
+                filmId);
+    }
+
+    private void deleteFilmLike(Long userId, Long filmId, EventType type, EventOperation operation){
+        String sql = "MERGE INTO EVENTS (EVENT_TIME, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)\n" +
+                "VALUES (?,?,?,?,?)";
+        jdbcTemplate.update(sql, Timestamp.valueOf(LocalDateTime.now()),
+                userId,
+                type,
+                operation,
+                filmId);
     }
 }
