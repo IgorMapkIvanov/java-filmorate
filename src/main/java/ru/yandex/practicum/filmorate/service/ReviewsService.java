@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.impl.ReviewDbRepository;
@@ -8,16 +9,16 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ReviewsService {
     private final ReviewDbRepository reviewDbRepository;
 
     public Review addReview(Review review) {
-        System.out.println("IN SERVICE");
-        System.out.println(review);
         return reviewDbRepository.addReview(review);
     }
 
@@ -34,7 +35,9 @@ public class ReviewsService {
     }
 
     public Collection<Review> getAllReviews(int filmId, int numOfReviews) {
-        return reviewDbRepository.getAllReviews(filmId, numOfReviews);
+        return (reviewDbRepository.getAllReviews(filmId, numOfReviews)).stream()
+                .sorted(Comparator.comparingInt(Review::getUseful).reversed())
+                .collect(Collectors.toList());
     }
 
     public void setLikeToReview(int filmId, long userId) {

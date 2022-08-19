@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 @Data
 @Builder
 public class Review {
@@ -14,7 +17,7 @@ public class Review {
     @JsonProperty("reviewId")
     private int id;
     private int filmId;
-    private int userId;
+    private Long userId;
     @JsonProperty("isPositive")
     private Boolean isPositive;
     private String content;
