@@ -173,4 +173,51 @@ public class FilmDbRepository implements FilmRepository {
                 new HashSet<>(),
                 new ArrayList<>(),new ArrayList<>());
     }
+
+    @Override
+    public Collection<Film> getMostPopularFilms(Integer count, Integer genreId, Integer year) {
+        String sql = "select f.*, m.ID,MPA_ID, m.NAME MPA_NAME " +
+                "from FILMS f LEFT JOIN LIKES l on f.ID = l.FILM_ID " +
+                "left join MPA m on f.MPA_ID = M.ID " +
+                "group by f.ID order by count(l.USER_ID) desc limit ?";
+        if (genreId != null && year != null) {
+            sql = "select f.*, m.ID,MPA_ID, m.NAME MPA_NAME " +
+                    "from FILMS f LEFT JOIN LIKES l on f.ID = l.FILM_ID " +
+                    "left join MPA m on f.MPA_ID = M.ID " +
+                    "left join FILM_GENRES fg on f.ID = FG.FILM_ID " +
+                    "where fg.GENRE_ID = ? and extract(year from f.RELEASE_DATE) = ? " +
+                    "group by f.ID order by count(l.USER_ID) desc limit ?";
+            Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, genreId, year, count);
+            films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
+            genreRepository.loadFilmGenres(films);
+            return films;
+        }
+        if (genreId != null) {
+            sql = "select f.*, m.ID,MPA_ID, m.NAME MPA_NAME " +
+                    "from FILMS f LEFT JOIN LIKES l on f.ID = l.FILM_ID " +
+                    "left join MPA m on f.MPA_ID = M.ID " +
+                    "left join FILM_GENRES fg on f.ID = FG.FILM_ID " +
+                    "where fg.GENRE_ID = ? " +
+                    "group by f.ID order by count(l.USER_ID) desc limit ?";
+            Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, genreId, count);
+            films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
+            genreRepository.loadFilmGenres(films);
+            return films;
+        }
+        if (year != null) {
+            sql = "select f.*, m.ID,MPA_ID, m.NAME MPA_NAME " +
+                    "from FILMS f LEFT JOIN LIKES l on f.ID = l.FILM_ID " +
+                    "left join MPA m on f.MPA_ID = M.ID " +
+                    "where extract(year from f.RELEASE_DATE) = ? " +
+                    "group by f.ID order by count(l.USER_ID) desc limit ?";
+            Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, year, count);
+            films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
+            genreRepository.loadFilmGenres(films);
+            return films;
+        }
+        Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, count);
+        films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
+        genreRepository.loadFilmGenres(films);
+        return films;
+    }
 }
