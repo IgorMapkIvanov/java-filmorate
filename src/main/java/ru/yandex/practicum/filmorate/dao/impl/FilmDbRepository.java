@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -23,8 +24,6 @@ public class FilmDbRepository implements FilmRepository {
     private final DirectorRepository directorRepository;
 
     private final JdbcTemplate jdbcTemplate;
-
-    private final MpaRepository mpaRepository;
 
     @Override
     public Collection<Film> getAll() {
@@ -152,11 +151,13 @@ public class FilmDbRepository implements FilmRepository {
 
     @Override
     public List<Film> getCommonFilms(long userId, long friendId) {
-        String sql = "select f.* from  FILMS f, LIKES l1, LIKES l2 " +
+        String sql = "select f.*, m.ID,MPA_ID, m.NAME MPA_NAME " +
+                "from  FILMS f, LIKES l1, LIKES l2, MPA m " +
                 "where f.ID = l1.FILM_ID " +
                 "and f.ID = l2.FILM_ID " +
                 "and l1.USER_ID = ? " +
-                "and l2.USER_ID = ?";
+                "and l2.USER_ID = ?" +
+                "and m.ID = f.MPA_ID";
         return jdbcTemplate.query(sql, this::makeFilm, userId, friendId);
     }
 
@@ -166,13 +167,7 @@ public class FilmDbRepository implements FilmRepository {
                 rs.getString("DESCRIPTION"),
                 rs.getDate("RELEASE_DATE").toLocalDate(),
                 rs.getInt("DURATION"),
-                /*new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME"))
-                Поменяла эту строчку т.к в таблице FILMS нет строки MPA_NAME.
-                При запросе к БД вылетал stack trace cannot find column name MPA_NAME.
-                Так же в остальном могут быть проблемы при работе с БД если не заменить
-                получение класса MPA из таблицы MPA. Так же считаю нужным сделать по аналогии
-                для получение жанров фильма.*/
-                mpaRepository.getById(rs.getLong("MPA_ID")),
+                new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME")),
                 new HashSet<>(),
                 new ArrayList<>(),new ArrayList<>());
     }
