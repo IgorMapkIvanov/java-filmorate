@@ -1,78 +1,48 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
+
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.ReviewsRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Objects;
 
 @Component
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class ReviewDbRepository implements ReviewsRepository {
-
     private final JdbcTemplate jdbcTemplate;
-    private final UserDbRepository userDbRepository;
 
     @Override
     public Review addReview(Review review) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-
-        Integer filmId = review.getFilmId();
-        Long userId = review.getUserId();
-        Boolean isPositive = review.getIsPositive();
-        String content = review.getContent();
-
-        if(filmId == 0) {
-            throw new ValidationException("Incorrect film id:" + filmId);
-        }
-
-
-        idValidation(filmId);
-        userValidation(userId);
-
-        if(isPositive == null) {
-            throw new ValidationException("Incorrect positivity of review");
-        }
-
-        if(content == null) {
-            throw new ValidationException("Content can't be empty");
-        }
-
 
         jdbcTemplate.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO reviews(FILM_ID, USER_ID, IS_POSITIVE, CONTENT) VALUES ( ?, ?, ?, ? )"
             , new String[]{"ID"});
 
-            statement.setInt(1, filmId);
-            statement.setLong(2, userId);
-            statement.setBoolean(3, isPositive);
-            statement.setString(4, content);
+            statement.setLong(1, review.getFilmId());
+            statement.setLong(2, review.getUserId());
+            statement.setBoolean(3, review.getIsPositive());
+            statement.setString(4, review.getContent());
 
             return statement;
         }, keyHolder);
 
-        return getReviewById(keyHolder.getKey().intValue());
+        return getReviewById(keyHolder.getKey().longValue());
     }
 
     @Override
-    public Collection<Review> getAllReviews(int filmId, int count) {
+    public Collection<Review> getAllReviews(long filmId, int count) {
         if(filmId == 0) {
             return jdbcTemplate.query(
                     "SELECT r.* FROM REVIEWS r " +
@@ -94,7 +64,7 @@ public class ReviewDbRepository implements ReviewsRepository {
 
     @Override
     public Review updateReview(Review review) {
-        reviewValidation(review.getId());
+        reviewDBValidation(review.getId());
 
         if (review.getContent() != null) {
             jdbcTemplate.update("UPDATE REVIEWS SET " +
@@ -116,23 +86,23 @@ public class ReviewDbRepository implements ReviewsRepository {
     }
 
     @Override
-    public void removeReviewById(int id) {
-        reviewValidation(id);
+    public void removeReviewById(long id) {
+        reviewDBValidation(id);
+
         jdbcTemplate.update("DELETE FROM REVIEWS WHERE ID = ?", id);
     }
 
     @Override
-    public Review getReviewById(int id) throws NotFoundException {
-        reviewValidation(id);
+    public Review getReviewById(long id) throws NotFoundException {
+        reviewDBValidation(id);
 
         return jdbcTemplate.queryForObject("SELECT * FROM REVIEWS WHERE ID = ?",
                 (rs, rowNum) -> makeReview(rs), id);
     }
 
     @Override
-    public void addLike(int reviewId, long userId) {
-        reviewValidation(reviewId);
-        userValidation(userId);
+    public void addLike(long reviewId, long userId) {
+        reviewDBValidation(reviewId);
 
         jdbcTemplate.update("MERGE INTO REVIEW_USEFUL(REVIEW_ID, USER_ID, RATE) VALUES ( ?, ?, ? )",
                 reviewId,
@@ -141,9 +111,8 @@ public class ReviewDbRepository implements ReviewsRepository {
     }
 
     @Override
-    public void addDislike(int reviewId, long userId) {
-        reviewValidation(reviewId);
-        userValidation(userId);
+    public void addDislike(long reviewId, long userId) {
+        reviewDBValidation(reviewId);
 
         jdbcTemplate.update("MERGE INTO REVIEW_USEFUL(REVIEW_ID, USER_ID, RATE) VALUES ( ?, ?, ? )",
                 reviewId,
@@ -152,9 +121,8 @@ public class ReviewDbRepository implements ReviewsRepository {
     }
 
     @Override
-    public void removeLike(int reviewId, long userId) {
-        reviewValidation(reviewId);
-        userValidation(userId);
+    public void removeLike(long reviewId, long userId) {
+        reviewDBValidation(reviewId);
 
         jdbcTemplate.update("DELETE FROM REVIEW_USEFUL WHERE REVIEW_ID = ? AND USER_ID = ? AND RATE = 1",
                 reviewId,
@@ -162,9 +130,8 @@ public class ReviewDbRepository implements ReviewsRepository {
     }
 
     @Override
-    public void removeDislike(int reviewId, long userId) {
-        reviewValidation(reviewId);
-        userValidation(userId);
+    public void removeDislike(long reviewId, long userId) {
+        reviewDBValidation(reviewId);
 
         jdbcTemplate.update("DELETE FROM REVIEW_USEFUL WHERE REVIEW_ID = ? AND USER_ID = ? AND RATE = -1",
                 reviewId,
@@ -173,12 +140,7 @@ public class ReviewDbRepository implements ReviewsRepository {
 
     private Review makeReview(ResultSet rs) throws SQLException {
         int rating;
-        int reviewId = rs.getInt("id");
-        int filmId = rs.getInt("film_Id");
-        Long userId = rs.getLong("user_Id");
-
-        idValidation(filmId);
-        userValidation(userId);
+        Long reviewId = rs.getLong("id");
 
         int numOfRates = jdbcTemplate.queryForObject("SELECT COUNT(RATE) FROM REVIEW_USEFUL WHERE REVIEW_ID = ?"
                 , Integer.class, reviewId);
@@ -192,29 +154,15 @@ public class ReviewDbRepository implements ReviewsRepository {
 
         return Review.builder()
                 .id(reviewId)
-                .filmId(filmId)
-                .userId(userId)
+                .filmId(rs.getLong("film_Id"))
+                .userId(rs.getLong("user_Id"))
                 .isPositive(rs.getBoolean("IS_POSITIVE"))
                 .content(rs.getString("content"))
                 .useful(rating)
                 .build();
     }
 
-    private void idValidation(Long id) {
-        if (id < 1) {
-            throw new NotFoundException("Incorrect id:" + id);
-        }
-    }
-
-    private void idValidation(int id) {
-        if (id < 1) {
-            throw new NotFoundException("Incorrect id:" + id);
-        }
-    }
-
-    private void reviewValidation(int id) {
-        idValidation(id);
-
+    private void reviewDBValidation(long id) {
         try {
             jdbcTemplate.queryForObject("SELECT * FROM REVIEWS WHERE ID = ?",
                     (rs, rowNum) -> makeReview(rs), id);
@@ -223,13 +171,4 @@ public class ReviewDbRepository implements ReviewsRepository {
         }
     }
 
-    private void userValidation(long id) {
-        idValidation(id);
-
-        try {
-            userDbRepository.getById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Not found user with id:" + id);
-        }
-    }
 }
