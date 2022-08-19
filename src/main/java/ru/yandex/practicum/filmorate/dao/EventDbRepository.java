@@ -23,8 +23,6 @@ public class EventDbRepository {
         return jdbcTemplate.query(sql, EventDbRepository::makeEvent, id);
     }
 
-
-
     private static Event makeEvent(ResultSet rs, int rowNum) throws SQLException {
         return Event.builder()
                 .id(rs.getLong("id"))
@@ -36,47 +34,13 @@ public class EventDbRepository {
                 .build();
     }
 
-    public void addFilmEvent(Long userId, Long filmId, EventType type, EventOperation operation) {
-        switch (operation) {
-            case ADD:
-                addFilmLike(userId, filmId, type, operation);
-                break;
-            case UPDATE:
-                updateFilmLike(userId, filmId, type, operation);
-                break;
-            case DELETE:
-                deleteFilmLike(userId, filmId, type, operation);
-                break;
-        }
-    }
-
-    private void addFilmLike(Long userId, Long filmId, EventType type, EventOperation operation){
+    public void addEvent(Long userId, Long entityId, EventType type, EventOperation operation) {
         String sql = "INSERT INTO EVENTS (EVENT_TIME, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)\n" +
                 "VALUES (?,?,?,?,?)";
         jdbcTemplate.update(sql, Timestamp.valueOf(LocalDateTime.now()),
                 userId,
                 type,
                 operation,
-                filmId);
-    }
-
-    private void updateFilmLike(Long userId, Long filmId, EventType type, EventOperation operation){
-        String sql = "MERGE INTO EVENTS (EVENT_TIME, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)\n" +
-                "VALUES (?,?,?,?,?)";
-        jdbcTemplate.update(sql, Timestamp.valueOf(LocalDateTime.now()),
-                userId,
-                type,
-                operation,
-                filmId);
-    }
-
-    private void deleteFilmLike(Long userId, Long filmId, EventType type, EventOperation operation){
-        String sql = "MERGE INTO EVENTS (EVENT_TIME, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)\n" +
-                "VALUES (?,?,?,?,?)";
-        jdbcTemplate.update(sql, Timestamp.valueOf(LocalDateTime.now()),
-                userId,
-                type,
-                operation,
-                filmId);
+                entityId);
     }
 }

@@ -53,9 +53,8 @@ public class FilmDbRepository implements FilmRepository {
                 "            )  \n" +
                 "ORDER BY f.RELEASE_DATE;";}
         else if(sort.equalsIgnoreCase("likes")){
-        sql = "SELECT f.*,\n" +
-                "       m.NAME MPA_NAME\n" +
-                "           FROM FILMS f, MPA m \n" +
+        sql = "SELECT f.*, m.NAME MPA_NAME\n" +
+                "       FROM FILMS f, MPA m \n" +
                 "WHERE f.MPA_ID = m.ID AND (select f.ID from FILMS\n" +
                 "    left join LIKES L on FILMS.ID = L.FILM_ID\n" +
                 "    WHERE f.ID in (\n" +
@@ -145,14 +144,16 @@ public class FilmDbRepository implements FilmRepository {
 
     @Override
     public boolean addLike(Long filmId, Long userId) {
-        Boolean isLike = likesRepository.addLike(filmId, userId);
-        eventDbRepository.addFilmEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
+        boolean isLike = likesRepository.addLike(filmId, userId);
+        eventDbRepository.addEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
         return isLike;
     }
 
     @Override
     public boolean deleteLike(Long filmId, Long userId) {
-        return likesRepository.deleteLike(filmId, userId);
+        boolean isLike = likesRepository.deleteLike(filmId, userId);
+        eventDbRepository.addEvent(userId, filmId, EventType.LIKE, EventOperation.DELETE);
+        return isLike;
     }
 
     private static Film makeFilm(ResultSet rs, int i) throws SQLException {

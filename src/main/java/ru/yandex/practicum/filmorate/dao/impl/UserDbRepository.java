@@ -5,8 +5,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dao.EventDbRepository;
 import ru.yandex.practicum.filmorate.dao.FriendsRepository;
 import ru.yandex.practicum.filmorate.dao.UserRepository;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
@@ -19,6 +22,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserDbRepository implements UserRepository {
     private final FriendsRepository friendsRepository;
+    private final EventDbRepository eventDbRepository;
+
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -90,11 +95,13 @@ public class UserDbRepository implements UserRepository {
     @Override
     public void addFriends(Long userId, Long friendId) {
         friendsRepository.addFriends(userId, friendId);
+        eventDbRepository.addEvent(userId, friendId, EventType.FRIEND, EventOperation.ADD);
     }
 
     @Override
     public void deleteFriend(Long userId, Long friendId) {
         friendsRepository.deleteFriend(userId,friendId);
+        eventDbRepository.addEvent(userId, friendId, EventType.FRIEND, EventOperation.DELETE);
     }
 
     @Override
