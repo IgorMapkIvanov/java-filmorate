@@ -9,21 +9,21 @@ import java.util.Collection;
 
 @Repository
 @RequiredArgsConstructor
-public class FilmGenresRepository {
-
+public class FilmDirectorsRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    public void deleteFilmGenres(Collection<Film> films) {
-        String sqlDelete = "DELETE FROM FILM_GENRES WHERE FILM_ID = ?";
+    public void deleteFilmDirectors(Collection<Film> films) {
+        String sqlDelete = "DELETE FROM FILM_DIRECTOR WHERE FILM_ID = ?";
         films.forEach(x -> jdbcTemplate.update(sqlDelete, x.getId()));
     }
 
-    public void saveFilmGenres(Collection<Film> films) {
-        String sqlSave = "MERGE INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)";
+    public void saveFilmDirectors(Collection<Film> films) {
+        String sqlSave = "MERGE INTO FILM_DIRECTOR (FILM_ID, DIRECTOR_ID) VALUES (?, ?)";
         films.forEach(x -> {
-            if(x.getGenres() != null){
-                x.getGenres().forEach(genre -> jdbcTemplate.update(sqlSave, x.getId(), genre.getId()));
+            if(x.getDirectors() != null){
+                x.getDirectors().forEach(director -> jdbcTemplate.update(sqlSave, x.getId(), director.getId()));
             }
         });
     }
+
 }
