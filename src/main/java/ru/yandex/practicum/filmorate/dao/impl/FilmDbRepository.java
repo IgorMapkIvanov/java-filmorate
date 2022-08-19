@@ -41,7 +41,7 @@ public class FilmDbRepository implements FilmRepository {
         if (sort.equalsIgnoreCase("year")){
         sql = "SELECT f.*,\n" +
                 "        m.NAME MPA_NAME\n" +
-                "        FROM FILMS f, MPA m\n" +
+                "        FROM FILMS f, MPA m \n" +
                 "        WHERE f.MPA_ID = m.ID AND f.ID in (\n" +
                 "            SELECT fd.FILM_ID\n" +
                 "            FROM FILM_DIRECTOR as fd\n" +
@@ -49,11 +49,10 @@ public class FilmDbRepository implements FilmRepository {
                 "            )  \n" +
                 "ORDER BY f.RELEASE_DATE;";}
         else if(sort.equalsIgnoreCase("likes")){
-        sql = "SELECT f.*\n" +
+        sql = "SELECT f.*,\n" +
                 "       m.NAME MPA_NAME\n" +
-                "           FROM FILMS f\n" +
-                "    join MPA m on m.ID = f.MPA_ID\n" +
-                "WHERE (select f.ID from FILMS\n" +
+                "           FROM FILMS f, MPA m \n" +
+                "WHERE f.MPA_ID = m.ID AND (select f.ID from FILMS\n" +
                 "    left join LIKES L on FILMS.ID = L.FILM_ID\n" +
                 "    WHERE f.ID in (\n" +
                 "    SELECT fd.FILM_ID\n" +
