@@ -23,6 +23,7 @@ import java.util.*;
 public class FilmDbRepository implements FilmRepository {
     private final GenreRepository genreRepository;
     private final LikesRepository likesRepository;
+    private final EventDbRepository eventDbRepository;
     private final DirectorRepository directorRepository;
     private final EventDbRepository eventDbRepository;
 
