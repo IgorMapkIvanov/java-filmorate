@@ -24,6 +24,10 @@ public class FilmDbRepository implements FilmRepository {
     private final DirectorRepository directorRepository;
     private final MpaRepository mpaRepository;
 
+    private final DirectorRepository directorRepository;
+
+    private final FilmDirectorsRepository filmDirectorsRepository;
+
     private final JdbcTemplate jdbcTemplate;
 
     @Override
