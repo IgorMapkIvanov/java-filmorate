@@ -15,8 +15,8 @@ import javax.validation.constraints.NotNull;
 public class Review {
     @Id
     @JsonProperty("reviewId")
-    private int id;
-    private int filmId;
+    private Long id;
+    private Long filmId;
     private Long userId;
     @JsonProperty("isPositive")
     private Boolean isPositive;
