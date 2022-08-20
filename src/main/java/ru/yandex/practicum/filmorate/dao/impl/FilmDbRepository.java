@@ -25,6 +25,8 @@ public class FilmDbRepository implements FilmRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private final MpaRepository mpaRepository;
+
     @Override
     public Collection<Film> getAll() {
         String sql = "SELECT f.*, m.NAME MPA_NAME FROM FILMS f, MPA m WHERE f.MPA_ID = m.ID";
@@ -84,7 +86,7 @@ public class FilmDbRepository implements FilmRepository {
             return stmt;
         }, keyHolder);
         film.setId(keyHolder.getKey().longValue());
-        if(film.getGenres() != null && film.getGenres().size() > 0){
+        if (film.getGenres() != null && film.getGenres().size() > 0) {
             genreRepository.saveFilmGenres(List.of(film));
         }
         if(film.getDirectors() != null && film.getDirectors().size() > 0){
@@ -104,7 +106,7 @@ public class FilmDbRepository implements FilmRepository {
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId());
-        if(countUpdateRows > 0){
+        if (countUpdateRows > 0) {
             genreRepository.saveFilmGenres(List.of(film));
             genreRepository.loadFilmGenres(List.of(film));
             directorRepository.saveFilmDirectors(List.of(film));
@@ -125,7 +127,7 @@ public class FilmDbRepository implements FilmRepository {
     public Film getById(Long id) {
         String sql = "SELECT f.*, m.NAME MPA_NAME FROM FILMS f, MPA m WHERE f.ID = ? AND f.MPA_ID = m.ID";
         List<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, id);
-        if (films.size() != 1){
+        if (films.size() != 1) {
             return null;
         }
         genreRepository.loadFilmGenres(films);
@@ -135,7 +137,7 @@ public class FilmDbRepository implements FilmRepository {
     }
 
     @Override
-    public void loadLikes(Collection<Film> films){
+    public void loadLikes(Collection<Film> films) {
         films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
     }
 
@@ -147,6 +149,18 @@ public class FilmDbRepository implements FilmRepository {
     @Override
     public boolean deleteLike(Long filmId, Long userId) {
         return likesRepository.deleteLike(filmId, userId);
+    }
+
+    @Override
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        String sql = "select f.*, m.name MPA_NAME " +
+                "from FILMS f, MPA m, LIKES l1, LIKES l2 " +
+                "where f.ID = l1.FILM_ID " +
+                "and f.ID = l2.FILM_ID " +
+                "and l1.USER_ID = ? " +
+                "and l2.USER_ID = ?" +
+                "and m.ID = f.MPA_ID";
+        return jdbcTemplate.query(sql, FilmDbRepository::makeFilm, userId, friendId);
     }
 
     private static Film makeFilm(ResultSet rs, int i) throws SQLException {
