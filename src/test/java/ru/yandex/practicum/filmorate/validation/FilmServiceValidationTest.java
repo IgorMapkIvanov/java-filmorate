@@ -16,7 +16,7 @@ class FilmServiceValidationTest {
 
     @Test
     void shouldWhenReLeaseDataIsEarly28121895() {
-        FilmService filmService = new FilmService(null,null);
+        FilmService filmService = new FilmService(null,null, null);
         Film film = new Film(1L, "f1", "fd1", LocalDate.of(1895, 12, 2), 130, new Mpa(1, "mpa"), new HashSet<>(), new HashSet<>(),new ArrayList<>());
 
         assertThrows(ValidationException.class, () -> filmService.validation(film));
@@ -24,7 +24,7 @@ class FilmServiceValidationTest {
 
     @Test
     void shouldWhenDurationIsNegative() {
-        FilmService filmService = new FilmService(null,null);
+        FilmService filmService = new FilmService(null,null, null);
         Film film2 = new Film(1L, "f1", "fd1", LocalDate.of(1995, 12, 27), 0, new Mpa(1, "mpa"), new HashSet<>(), new HashSet<>(),new ArrayList<>());
         Film film3 = new Film(1L, "f1", "fd1", LocalDate.of(1995, 12, 27), -1, new Mpa(1, "mpa"), new HashSet<>(), new HashSet<>(),new ArrayList<>());
 
