@@ -18,13 +18,9 @@ public class Recommend {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    /**
-     * По шкале от 0,0 до 1,0, где 0 означает отсутствие интереса и 1,0 — полный интерес.
-     * В результате инициализации данных мы получим Map с данными ранжирования пользовательских элементов:
-     * Map<User, HashMap<Item, Double>> data;
-     */
     public Set<Long> getRecommendations(long userId) {
         Set<Long> filmSet = new HashSet<>();
+
         Map<Long, HashMap<Long, Double>> matrixOfDiff = new HashMap<>();    // Матрицы
         Map<Long, Integer> matrixOfFreq = new HashMap<>();
         Map<Long, HashMap<Long, Double>> data = createMatrixOfDiff();
@@ -33,6 +29,7 @@ public class Recommend {
         for (Map.Entry<Long, HashMap<Long, Double>> entryData : data.entrySet()) {
             if (entryData.getKey() == userId) {
                 matrixOfDiff.put(entryData.getKey(), new HashMap<Long, Double>());
+
                 for (Map.Entry<Long, Double> entryData2 : entryData.getValue().entrySet()) {
                     double diff = userLike.get(entryData2.getKey()) * entryData2.getValue();
                     if (diff == 1.0) {
@@ -40,7 +37,7 @@ public class Recommend {
                             matrixOfFreq.put(entryData.getKey(), 0);
                         }
                         int count = matrixOfFreq.get(entryData.getKey());
-                        count += 1;
+                        count++;
                         matrixOfFreq.put(entryData.getKey(), count);
                     }
                     matrixOfDiff.get(entryData.getKey()).put(entryData2.getKey(), diff);
@@ -68,14 +65,14 @@ public class Recommend {
         Map<Long, HashMap<Long, Double>> data = new HashMap<>();
         Map<Long, Double> films = new HashMap<>();
 
-        SqlRowSet likeRows = jdbcTemplate.queryForRowSet("SELECT * FROM Likes");
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT film_id FROM Likes GROUP BY film_id");
+        SqlRowSet likeRows = jdbcTemplate.queryForRowSet("SELECT * FROM likes");
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT film_id FROM likes GROUP BY film_id");
 
         while (filmRows.next()) {
             films.put(filmRows.getLong("film_id"), 0.0);
         }
         while (likeRows.next()) {
-            if(!data.containsKey(likeRows.getLong("user_id"))) {
+            if (!data.containsKey(likeRows.getLong("user_id"))) {
                 data.put(likeRows.getLong("user_id"), new HashMap<>(films));
             }
             data.get(likeRows.getLong("user_id")).put(likeRows.getLong("film_id"), 1.0);
