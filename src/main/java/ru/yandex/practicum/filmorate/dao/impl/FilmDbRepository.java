@@ -67,6 +67,7 @@ public class FilmDbRepository implements FilmRepository {
         films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
         genreRepository.loadFilmGenres(films);
         directorRepository.loadFilmDirectors(films);
+        directorRepository.loadFilmDirectors(films);
         return films;
     }
 
