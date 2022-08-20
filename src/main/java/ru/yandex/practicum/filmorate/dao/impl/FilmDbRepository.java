@@ -6,8 +6,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.*;
-import ru.yandex.practicum.filmorate.model.EventOperation;
-import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
@@ -23,13 +21,7 @@ import java.util.*;
 public class FilmDbRepository implements FilmRepository {
     private final GenreRepository genreRepository;
     private final LikesRepository likesRepository;
-    private final EventDbRepository eventDbRepository;
     private final DirectorRepository directorRepository;
-    private final EventDbRepository eventDbRepository;
-
-    private final DirectorRepository directorRepository;
-
-    private final FilmDirectorsRepository filmDirectorsRepository;
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -74,47 +66,6 @@ public class FilmDbRepository implements FilmRepository {
         films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
         genreRepository.loadFilmGenres(films);
         directorRepository.loadFilmDirectors(films);
-        directorRepository.loadFilmDirectors(films);
-        return films;
-    }
-
-    @Override
-    public Collection<Film> getFilmByDirectorSorted(Integer id, String sort){
-        String sql ="";
-        if (sort.equals("year")){
-        sql = "SELECT f.*,\n" +
-                "        m.NAME MPA_NAME\n" +
-                "        FROM FILMS f, MPA m\n" +
-                "        WHERE f.MPA_ID = m.ID AND f.ID in (\n" +
-                "            SELECT fd.FILM_ID\n" +
-                "            FROM FILM_DIRECTOR as fd\n" +
-                "            WHERE fd.DIRECTOR_ID = ?\n" +
-                "            )  \n" +
-                "ORDER BY f.RELEASE_DATE;";}
-        else if(sort.equals("likes")){
-        sql = "SELECT f.ID,\n" +
-                "       f.NAME,\n" +
-                "       f.DESCRIPTION,\n" +
-                "       f.DURATION,\n" +
-                "       f.RELEASE_DATE,\n" +
-                "       m.ID MPA_ID,\n" +
-                "       m.NAME MPA_NAME\n" +
-                "           FROM FILMS f\n" +
-                "    join MPA m on m.ID = f.MPA_ID\n" +
-                "WHERE (select f.ID from FILMS\n" +
-                "    left join LIKES L on FILMS.ID = L.FILM_ID\n" +
-                "    WHERE f.ID in (\n" +
-                "    SELECT fd.FILM_ID\n" +
-                "    FROM FILM_DIRECTOR as fd\n" +
-                "    WHERE fd.DIRECTOR_ID = ?\n" +
-                "    )\n" +
-                "    group by f.ID\n" +
-                "    order by count(l.USER_ID)desc)\n" +
-                ";";
-        }
-        Collection<Film> films = jdbcTemplate.query(sql,FilmDbRepository::makeFilm,id);
-        films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
-        genreRepository.loadFilmGenres(films);
         directorRepository.loadFilmDirectors(films);
         return films;
     }
@@ -190,16 +141,12 @@ public class FilmDbRepository implements FilmRepository {
 
     @Override
     public boolean addLike(Long filmId, Long userId) {
-        boolean isLike = likesRepository.addLike(filmId, userId);
-        eventDbRepository.addEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
-        return isLike;
+        return likesRepository.addLike(filmId, userId);
     }
 
     @Override
     public boolean deleteLike(Long filmId, Long userId) {
-        boolean isLike = likesRepository.deleteLike(filmId, userId);
-        eventDbRepository.addEvent(userId, filmId, EventType.LIKE, EventOperation.DELETE);
-        return isLike;
+        return likesRepository.deleteLike(filmId, userId);
     }
 
     private static Film makeFilm(ResultSet rs, int i) throws SQLException {

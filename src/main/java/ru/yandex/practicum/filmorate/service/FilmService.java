@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.DirectorRepository;
+import ru.yandex.practicum.filmorate.dao.EventDbRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.dao.FilmRepository;
 
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmRepository repository;
+    private final EventDbRepository eventDbRepository;
     private final DirectorRepository directorRepository;
 
     public void validation(Film film) {
@@ -94,7 +97,9 @@ public class FilmService {
             log.info("Movie with ID = {}, not found.", filmId);
             throw new NotFoundException(String.format("Movie with id = %s, not found", filmId));
         }
-        repository.addLike(filmId, userId);
+        if(repository.addLike(filmId, userId)){
+            eventDbRepository.addEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
+        }
     }
 
     public void deleteLike(Long filmId, Long userId) {
@@ -105,6 +110,8 @@ public class FilmService {
         if (!repository.deleteLike(filmId, userId)){
             log.info("User with ID = {}, don't like film with ID = {}.",userId, filmId);
             throw new NotFoundException(String.format("User with ID = %s, don't like film with ID = %s.",userId, filmId));
+        } else {
+            eventDbRepository.addEvent(userId, filmId, EventType.LIKE, EventOperation.DELETE);
         }
     }
 

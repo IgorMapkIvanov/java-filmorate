@@ -8,7 +8,7 @@ public interface ReviewsRepository {
     Review addReview(Review review);
     Collection<Review> getAllReviews(long filmId, int count);
     Review updateReview(Review review);
-    void removeReviewById(long id);
+    Review removeReviewById(long id);
     Review getReviewById(long id);
     void addLike(long reviewId, long userId);
     void addDislike(long reviewId, long userId);
