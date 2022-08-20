@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.model.EventOperation;
-import ru.yandex.practicum.filmorate.model.EventType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,21 +23,21 @@ public class EventDbRepository {
 
     private static Event makeEvent(ResultSet rs, int rowNum) throws SQLException {
         return Event.builder()
-                .id(rs.getLong("id"))
-                .eventTime(Timestamp.valueOf(rs.getString("event_time")))
+                .eventId(rs.getLong("id"))
+                .timestamp(Timestamp.valueOf(rs.getString("event_time")).getTime())
                 .userId(rs.getLong("user_id"))
-                .type(EventType.valueOf(rs.getString("event_type")))
-                .operation(EventOperation.valueOf(rs.getString("operation")))
+                .eventType(rs.getString("event_type"))
+                .operation(rs.getString("operation"))
                 .entityId(rs.getLong("entity_id"))
                 .build();
     }
 
-    public void addEvent(Long userId, Long entityId, EventType type, EventOperation operation) {
+    public void addEvent(Long userId, Long entityId, String eventType, String operation) {
         String sql = "INSERT INTO EVENTS (EVENT_TIME, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)\n" +
                 "VALUES (?,?,?,?,?)";
         jdbcTemplate.update(sql, Timestamp.valueOf(LocalDateTime.now()),
                 userId,
-                type,
+                eventType,
                 operation,
                 entityId);
     }

@@ -7,8 +7,6 @@ import ru.yandex.practicum.filmorate.dao.DirectorRepository;
 import ru.yandex.practicum.filmorate.dao.EventDbRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.EventOperation;
-import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.dao.FilmRepository;
 
@@ -98,7 +96,7 @@ public class FilmService {
             throw new NotFoundException(String.format("Movie with id = %s, not found", filmId));
         }
         if(repository.addLike(filmId, userId)){
-            eventDbRepository.addEvent(userId, filmId, EventType.LIKE, EventOperation.ADD);
+            eventDbRepository.addEvent(userId, filmId, "LIKE", "ADD");
         }
     }
 
@@ -111,7 +109,7 @@ public class FilmService {
             log.info("User with ID = {}, don't like film with ID = {}.",userId, filmId);
             throw new NotFoundException(String.format("User with ID = %s, don't like film with ID = %s.",userId, filmId));
         } else {
-            eventDbRepository.addEvent(userId, filmId, EventType.LIKE, EventOperation.DELETE);
+            eventDbRepository.addEvent(userId, filmId, "LIKE", "REMOVE");
         }
     }
 

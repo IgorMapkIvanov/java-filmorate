@@ -9,8 +9,6 @@ import ru.yandex.practicum.filmorate.dao.impl.ReviewDbRepository;
 import ru.yandex.practicum.filmorate.dao.impl.UserDbRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.EventOperation;
-import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.Collection;
@@ -30,8 +28,8 @@ public class ReviewsService {
         Review addedReview = reviewDbRepository.addReview(review);
         eventDbRepository.addEvent(addedReview.getUserId(),
                 addedReview.getId(),
-                EventType.REVIEW,
-                EventOperation.ADD);
+                "REVIEW",
+                "ADD");
         return addedReview;
     }
 
@@ -44,8 +42,8 @@ public class ReviewsService {
         Review updatedReview = reviewDbRepository.updateReview(review);
         eventDbRepository.addEvent(updatedReview.getUserId(),
                 updatedReview.getId(),
-                EventType.REVIEW,
-                EventOperation.UPDATE);
+                "REVIEW",
+                "UPDATE");
         return updatedReview;
     }
 
@@ -53,8 +51,8 @@ public class ReviewsService {
         Review removedReview = reviewDbRepository.removeReviewById(id);
         eventDbRepository.addEvent(removedReview.getUserId(),
                 removedReview.getId(),
-                EventType.REVIEW,
-                EventOperation.DELETE);
+                "REVIEW",
+                "REMOVE");
     }
 
     public Collection<Review> getAllReviews(long filmId, int numOfReviews) {

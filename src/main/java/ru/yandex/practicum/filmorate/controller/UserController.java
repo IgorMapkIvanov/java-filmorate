@@ -38,7 +38,7 @@ public class UserController {
         return userService.searchCommonFriends(id, otherId);
     }
 
-    @GetMapping("/{id}/feed}")
+    @GetMapping("/{id}/feed")
     public Collection<Event> feed(@PathVariable Long id){
         return userService.feed(id);
     }
