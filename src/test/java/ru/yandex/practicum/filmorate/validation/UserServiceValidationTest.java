@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserServiceValidationTest {
     @Test
     void shouldWhenNameIsEmpty() {
-        UserService userService = new UserService(null);
+        UserService userService = new UserService(null, null, null);
         User user = new User(1L, "u1@ya.ru", "u1", "",LocalDate.of(1995, 12, 28), null);
 
         userService.validation(user);
@@ -22,7 +22,7 @@ class UserServiceValidationTest {
 
     @Test
     void shouldWhenBirthdayInFuture(){
-        UserService userService = new UserService(null);
+        UserService userService = new UserService(null, null, null);
         User user = new User(1L, "u1@ya.ru", "u1", "nu1",LocalDate.now().plusDays(1), null);
 
         assertThrows(ValidationException.class, () -> userService.validation(user));
