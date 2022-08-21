@@ -113,12 +113,9 @@ public class FilmService {
         }
     }
 
-    public List<Film> getPopular(Integer count) {
+    public Collection<Film> getPopular(Integer count, Integer genreId, Integer year) {
         log.info("Send {} popular films", count);
-        return repository.getAll().stream()
-                .sorted(Comparator.comparing(Film::getLikes, (o1, o2) -> o2.size() - o1.size()))
-                .limit(count)
-                .collect(Collectors.toUnmodifiableList());
+        return repository.getMostPopularFilms(count, genreId, year);
     }
 
     public List<Film> getCommonFilms(long userId, long friendId) {
