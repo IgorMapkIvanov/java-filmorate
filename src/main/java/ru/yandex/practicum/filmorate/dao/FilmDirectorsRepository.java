@@ -16,15 +16,6 @@ public class FilmDirectorsRepository {
         String sqlDelete = "DELETE FROM FILM_DIRECTOR WHERE FILM_ID = ?";
         films.forEach(x -> jdbcTemplate.update(sqlDelete, x.getId()));
     }
-    public void deleteFilmDirectors(Long id) {
-        String sqlDelete = "DELETE FROM FILM_DIRECTOR WHERE FILM_ID = ?";
-        jdbcTemplate.update(sqlDelete, id);
-    }
-
-    public void deleteFilmDirectors(Integer id) {
-        String sqlDelete = "DELETE FROM FILM_DIRECTOR WHERE DIRECTOR_ID = ?";
-        jdbcTemplate.update(sqlDelete, id);
-    }
 
     public void saveFilmDirectors(Collection<Film> films) {
         String sqlSave = "MERGE INTO FILM_DIRECTOR (FILM_ID, DIRECTOR_ID) VALUES (?, ?)";

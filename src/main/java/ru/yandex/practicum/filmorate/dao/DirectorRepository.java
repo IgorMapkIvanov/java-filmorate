@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -68,7 +67,6 @@ public class DirectorRepository {
     }
 
     public boolean delete(Integer id) {
-        filmDirectorsRepository.deleteFilmDirectors(id);
         String sql = "DELETE FROM DIRECTORS WHERE ID = ?";
         return jdbcTemplate.update(sql, id) > 0;
     }
