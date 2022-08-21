@@ -37,33 +37,34 @@ public class FilmDbRepository implements FilmRepository {
     }
 
     @Override
-    public Collection<Film> getFilmByDirectorSorted(Integer id, String sort){
-        String sql ="";
-        if (sort.equalsIgnoreCase("year")){
-        sql = "SELECT f.*,\n" +
-                "        m.NAME MPA_NAME\n" +
-                "        FROM FILMS f, MPA m\n" +
-                "        WHERE f.MPA_ID = m.ID AND f.ID in (\n" +
-                "            SELECT fd.FILM_ID\n" +
-                "            FROM FILM_DIRECTOR as fd\n" +
-                "            WHERE fd.DIRECTOR_ID = ?\n" +
-                "            )  \n" +
-                "ORDER BY f.RELEASE_DATE;";}
-        else if(sort.equalsIgnoreCase("likes")){
-        sql = "SELECT f.*, m.NAME MPA_NAME\n" +
-                "       FROM FILMS f, MPA m \n" +
-                "WHERE f.MPA_ID = m.ID AND (select f.ID from FILMS\n" +
-                "    left join LIKES L on FILMS.ID = L.FILM_ID\n" +
-                "    WHERE f.ID in (\n" +
-                "    SELECT fd.FILM_ID\n" +
-                "    FROM FILM_DIRECTOR as fd\n" +
-                "    WHERE fd.DIRECTOR_ID = ?\n" +
-                "    )\n" +
-                "    group by f.ID\n" +
-                "    order by count(l.USER_ID)desc)\n" +
-                ";";
+    public Collection<Film> getFilmByDirectorSorted(Integer id, String sort) {
+        String sql = "";
+        if (sort.equalsIgnoreCase("year")) {
+            sql = "SELECT f.*,\n" +
+                    "        m.NAME MPA_NAME\n" +
+                    "        FROM FILMS f, MPA m \n" +
+                    "        WHERE f.MPA_ID = m.ID AND f.ID in (\n" +
+                    "            SELECT fd.FILM_ID\n" +
+                    "            FROM FILM_DIRECTOR as fd\n" +
+                    "            WHERE fd.DIRECTOR_ID = ?\n" +
+                    "            )  \n" +
+                    "ORDER BY f.RELEASE_DATE;";
+        } else if (sort.equalsIgnoreCase("likes")) {
+            sql = "SELECT f.*,\n" +
+                    "       m.NAME MPA_NAME\n" +
+                    "           FROM FILMS f, MPA m \n" +
+                    "WHERE f.MPA_ID = m.ID AND (select f.ID from FILMS\n" +
+                    "    left join LIKES L on FILMS.ID = L.FILM_ID\n" +
+                    "    WHERE f.ID in (\n" +
+                    "    SELECT fd.FILM_ID\n" +
+                    "    FROM FILM_DIRECTOR as fd\n" +
+                    "    WHERE fd.DIRECTOR_ID = ?\n" +
+                    "    )\n" +
+                    "    group by f.ID\n" +
+                    "    order by count(l.USER_ID)desc)\n" +
+                    ";";
         }
-        Collection<Film> films = jdbcTemplate.query(sql,FilmDbRepository::makeFilm,id);
+        Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, id);
         films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
         genreRepository.loadFilmGenres(films);
         directorRepository.loadFilmDirectors(films);
@@ -88,7 +89,7 @@ public class FilmDbRepository implements FilmRepository {
         if (film.getGenres() != null && film.getGenres().size() > 0) {
             genreRepository.saveFilmGenres(List.of(film));
         }
-        if(film.getDirectors() != null && film.getDirectors().size() > 0){
+        if (film.getDirectors() != null && film.getDirectors().size() > 0) {
             directorRepository.saveFilmDirectors(List.of(film));
         }
         return film;
@@ -170,6 +171,53 @@ public class FilmDbRepository implements FilmRepository {
                 rs.getInt("DURATION"),
                 new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME")),
                 new HashSet<>(),
-                new ArrayList<>(),new ArrayList<>());
+                new ArrayList<>(), new ArrayList<>());
+    }
+
+    @Override
+    public Collection<Film> getMostPopularFilms(Integer count, Integer genreId, Integer year) {
+        String sql = "select f.*, m.NAME MPA_NAME " +
+                "from FILMS f LEFT JOIN LIKES l on f.ID = l.FILM_ID " +
+                "left join MPA m on f.MPA_ID = M.ID " +
+                "group by f.ID order by count(l.USER_ID) desc limit ?";
+        if (genreId != null && year != null) {
+            sql = "select f.*, m.NAME MPA_NAME " +
+                    "from FILMS f LEFT JOIN LIKES l on f.ID = l.FILM_ID " +
+                    "left join MPA m on f.MPA_ID = M.ID " +
+                    "left join FILM_GENRES fg on f.ID = FG.FILM_ID " +
+                    "where fg.GENRE_ID = ? and extract(year from f.RELEASE_DATE) = ? " +
+                    "group by f.ID order by count(l.USER_ID) desc limit ?";
+            Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, genreId, year, count);
+            films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
+            genreRepository.loadFilmGenres(films);
+            return films;
+        }
+        if (genreId != null) {
+            sql = "select f.*, m.NAME MPA_NAME " +
+                    "from FILMS f LEFT JOIN LIKES l on f.ID = l.FILM_ID " +
+                    "left join MPA m on f.MPA_ID = M.ID " +
+                    "left join FILM_GENRES fg on f.ID = FG.FILM_ID " +
+                    "where fg.GENRE_ID = ? " +
+                    "group by f.ID order by count(l.USER_ID) desc limit ?";
+            Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, genreId, count);
+            films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
+            genreRepository.loadFilmGenres(films);
+            return films;
+        }
+        if (year != null) {
+            sql = "select f.*, m.NAME MPA_NAME " +
+                    "from FILMS f LEFT JOIN LIKES l on f.ID = l.FILM_ID " +
+                    "left join MPA m on f.MPA_ID = M.ID " +
+                    "where extract(year from f.RELEASE_DATE) = ? " +
+                    "group by f.ID order by count(l.USER_ID) desc limit ?";
+            Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, year, count);
+            films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
+            genreRepository.loadFilmGenres(films);
+            return films;
+        }
+        Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, count);
+        films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
+        genreRepository.loadFilmGenres(films);
+        return films;
     }
 }
