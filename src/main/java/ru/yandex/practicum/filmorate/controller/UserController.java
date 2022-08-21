@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/users")
@@ -38,9 +39,10 @@ public class UserController {
         return userService.searchCommonFriends(id, otherId);
     }
 
-    @GetMapping("/users/{id}/recommendations")
-    public List<Film> getRecommendations(@Valid @PathVariable Long id) {
-        return userService.getRecommendations(id);
+    @GetMapping("/{id}/recommendations")
+    public Collection<Film> getRecommendations(@Valid @PathVariable Long id) {
+        Collection<Film> films = userService.getRecommendations(id).stream().collect(Collectors.toUnmodifiableList());
+        return films;
     }
 
 

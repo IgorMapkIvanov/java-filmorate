@@ -28,35 +28,41 @@ public class Recommend {
 
         for (Map.Entry<Long, HashMap<Long, Double>> entryData : data.entrySet()) {
             if (entryData.getKey() == userId) {
-                matrixOfDiff.put(entryData.getKey(), new HashMap<Long, Double>());
-
-                for (Map.Entry<Long, Double> entryData2 : entryData.getValue().entrySet()) {
-                    double diff = userLike.get(entryData2.getKey()) * entryData2.getValue();
-                    if (diff == 1.0) {
-                        if (!matrixOfFreq.containsKey(entryData.getKey())) {
-                            matrixOfFreq.put(entryData.getKey(), 0);
-                        }
-                        int count = matrixOfFreq.get(entryData.getKey());
-                        count++;
-                        matrixOfFreq.put(entryData.getKey(), count);
-                    }
-                    matrixOfDiff.get(entryData.getKey()).put(entryData2.getKey(), diff);
-                }
+                continue;
             }
+            matrixOfDiff.put(entryData.getKey(), new HashMap<Long, Double>());
+
+            for (Map.Entry<Long, Double> entryData2 : entryData.getValue().entrySet()) {
+                double diff = userLike.get(entryData2.getKey()) * entryData2.getValue();
+                if (diff == 1.0) {
+                    if (!matrixOfFreq.containsKey(entryData.getKey())) {
+                        matrixOfFreq.put(entryData.getKey(), 0);
+                    }
+                    int count = matrixOfFreq.get(entryData.getKey());
+                    count++;
+                    matrixOfFreq.put(entryData.getKey(), count);
+                }
+                matrixOfDiff.get(entryData.getKey()).put(entryData2.getKey(), diff);
+            }
+
         }
 
         for (Map.Entry<Long, HashMap<Long, Double>> entryData : data.entrySet()) {
             if (matrixOfFreq.get(entryData.getKey()) == null
                     || matrixOfFreq.get(entryData.getKey()) == 0
                     || entryData.getKey() == userId) {
-
-                for (Map.Entry<Long, Double> entryData2 : entryData.getValue().entrySet()) {
-                    if (data.get(entryData.getKey()).get(entryData2.getKey()) == 1
-                            && matrixOfDiff.get(entryData.getKey()).get(entryData2.getKey()) == 0) {
-                        filmSet.add(entryData2.getKey());
-                    }
+                continue;
+            }
+            for (Map.Entry<Long, Double> entryData2 : entryData.getValue().entrySet()) {
+                Long ed2 = entryData2.getKey();
+                Long ed1 = entryData.getKey();
+                Double e1 = data.get(ed1).get(ed2);
+                Double e2 = matrixOfDiff.get(entryData.getKey()).get(entryData2.getKey());
+                if (e1.equals(1.0) && e2.equals(0.0)) {
+                    filmSet.add(entryData2.getKey());
                 }
             }
+
         }
         return filmSet;
     }
