@@ -3,12 +3,12 @@ package ru.yandex.practicum.filmorate.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/users")
@@ -39,10 +39,14 @@ public class UserController {
         return userService.searchCommonFriends(id, otherId);
     }
 
+    @GetMapping("/{id}/feed")
+    public Collection<Event> feed(@PathVariable Long id){
+        return userService.feed(id);
+    }
+
     @GetMapping("/{id}/recommendations")
-    public Collection<Film> getRecommendations(@Valid @PathVariable Long id) {
-        Collection<Film> films = userService.getRecommendations(id).stream().collect(Collectors.toUnmodifiableList());
-        return films;
+    public List<Film> getRecommendations(@Valid @PathVariable Long id) {
+        return userService.getRecommendations(id);
     }
 
 

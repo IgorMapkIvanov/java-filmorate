@@ -3,12 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.FilmRepository;
+import ru.yandex.practicum.filmorate.dao.EventDbRepository;
 import ru.yandex.practicum.filmorate.dao.UserRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Recommend;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -20,8 +19,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository repository;
-    private final FilmRepository filmRepository;
-    private final Recommend recommend;
+    private final EventDbRepository eventDbRepository;
 
     public void validation(User user) {
         if (user.getId() != null && user.getId()<= 0L){
@@ -100,7 +98,7 @@ public class UserService {
 
         log.info("User with ID = {} add friend with ID = {}.", userId, friendId);
         repository.addFriends(userId, friendId);
-
+        eventDbRepository.addEvent(userId, friendId, "FRIEND", "ADD");
     }
 
     public void deleteFriend(Long userId, Long friendId) {
@@ -113,6 +111,7 @@ public class UserService {
 
         log.info("User with ID = {} delete friend with ID = {}.", userId, friendId);
         repository.deleteFriend(userId, friendId);
+        eventDbRepository.addEvent(userId, friendId, "FRIEND", "REMOVE");
     }
 
     public void delete(Long id) {
@@ -123,17 +122,6 @@ public class UserService {
             log.info("User with id = {}, not found", id);
             throw new NotFoundException(String.format("User with id = %s, not found", id));
         }
-    }
-
-    public List<Film> getRecommendations(Long id) {
-        List<Film> films = new ArrayList<>();
-        Set<Long> filmsId = recommend.getRecommendations(id);
-        if (!filmsId.isEmpty()) {
-            for (Long i : filmsId) {
-                films.add(filmRepository.getById(i));
-            }
-        }
-        return films;
     }
 
     private void twoUserIsExistInDb(Long userId, Long friendId){
@@ -152,5 +140,11 @@ public class UserService {
             log.info("User with ID = {}, not found", friendId);
             throw new NotFoundException(String.format("User with ID = %s, not found", friendId));
         }
+    }
+
+    public Collection<Event> feed(Long id) {
+        Collection<Event> events = eventDbRepository.feed(id);
+        log.info("Send data of all event by user with ID = {}.", id);
+        return events;
     }
 }
