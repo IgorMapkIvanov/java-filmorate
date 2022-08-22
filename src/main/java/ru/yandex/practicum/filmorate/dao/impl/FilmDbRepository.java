@@ -25,8 +25,6 @@ public class FilmDbRepository implements FilmRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    private final MpaRepository mpaRepository;
-
     @Override
     public Collection<Film> getAll() {
         String sql = "SELECT f.*, m.NAME MPA_NAME FROM FILMS f, MPA m WHERE f.MPA_ID = m.ID";
