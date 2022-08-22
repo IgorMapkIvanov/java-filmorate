@@ -22,7 +22,6 @@ public class FilmDbRepository implements FilmRepository {
     private final GenreRepository genreRepository;
     private final LikesRepository likesRepository;
     private final DirectorRepository directorRepository;
-    private final MpaRepository mpaRepository;
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -67,7 +66,6 @@ public class FilmDbRepository implements FilmRepository {
         Collection<Film> films = jdbcTemplate.query(sql, FilmDbRepository::makeFilm, id);
         films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
         genreRepository.loadFilmGenres(films);
-        directorRepository.loadFilmDirectors(films);
         directorRepository.loadFilmDirectors(films);
         return films;
     }

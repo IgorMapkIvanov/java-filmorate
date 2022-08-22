@@ -18,10 +18,10 @@ public class EventDbRepository {
 
     public Collection<Event> feed(Long id) {
         String sql = "SELECT * FROM EVENTS WHERE USER_ID = ?";
-        return jdbcTemplate.query(sql, EventDbRepository::makeEvent, id);
+        return jdbcTemplate.query(sql, this::makeEvent, id);
     }
 
-    private static Event makeEvent(ResultSet rs, int rowNum) throws SQLException {
+    private Event makeEvent(ResultSet rs, int rowNum) throws SQLException {
         return Event.builder()
                 .eventId(rs.getLong("id"))
                 .timestamp(Timestamp.valueOf(rs.getString("event_time")).getTime())
@@ -33,8 +33,7 @@ public class EventDbRepository {
     }
 
     public void addEvent(Long userId, Long entityId, String eventType, String operation) {
-        String sql = "INSERT INTO EVENTS (EVENT_TIME, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID)\n" +
-                "VALUES (?,?,?,?,?)";
+        String sql = "INSERT INTO EVENTS (EVENT_TIME, USER_ID, EVENT_TYPE, OPERATION, ENTITY_ID) VALUES (?,?,?,?,?)";
         jdbcTemplate.update(sql, Timestamp.valueOf(LocalDateTime.now()),
                 userId,
                 eventType,
