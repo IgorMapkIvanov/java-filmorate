@@ -39,10 +39,12 @@ public class FilmController {
         return service.getFilmByDirectorSorted(directorId,sortBy);
     }
 
-    @GetMapping("/fimls/search")
-    public Collection<Film> searchFilms(@RequestParam String searchString, @RequestParam String searchBy) {
+    @GetMapping("/search")
+    public Collection<Film> searchFilms(@RequestParam(name = "query") String searchString, @RequestParam(name = "by") String searchBy) {
+        log.info("CONTROLLER: Trying search with string {} by {}", searchString, searchBy);
         return service.searchFilms(searchString, searchBy);
     }
+
 
     // Post requests
     @PostMapping

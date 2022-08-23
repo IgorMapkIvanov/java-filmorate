@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -221,9 +222,8 @@ public class FilmDbRepository implements FilmRepository {
         return films;
     }
 
-    public Collection<Film> searchFilm(String searchString, String[] searchBy) {
-
-
+    @Override
+    public Collection<Film> searchFilms(String searchString, String[] searchBy) {
         HashMap<String, String> catToDb = new HashMap<>();
         catToDb.put("director", "d.name");
         catToDb.put("title", "f.name");
@@ -231,23 +231,30 @@ public class FilmDbRepository implements FilmRepository {
         Collection<Film> searchedFilms = new ArrayList<>();
 
         for (String searchCriteria : searchBy) {
-            String query = "SELECT f.* FROM FILMS f" +
-                    "LEFT JOIN FILM_DIRECTOR fd on fd.FILM_ID = f.ID" +
-                    "LEFT JOIN DIRECTORS d on d.ID = fd.DIRECTOR_ID" +
+            String query = "SELECT f.*, m.NAME MPA_NAME FROM FILMS f " +
+                    "LEFT JOIN MPA m on f.MPA_ID = m.ID " +
+                    "LEFT JOIN FILM_DIRECTOR fd on fd.FILM_ID = f.ID " +
+                    "LEFT JOIN DIRECTORS d on d.ID = fd.DIRECTOR_ID " +
                     "LEFT JOIN (" +
-                    "SELECT " +
-                    ")" +
+                    "SELECT l.FILM_ID, count(l.USER_ID) rating FROM LIKES l " +
+                    "GROUP BY l.FILM_ID" +
+                    ") l on l.FILM_ID = f.ID " +
                     "WHERE " +
                     catToDb.get(searchCriteria) +
-                    " like '%?%'";
+                    " ilike \'%" +
+                    searchString.toLowerCase() +
+                    "%\' " +
+                    "ORDER BY l.rating desc";
 
             searchedFilms.addAll(
-                    jdbcTemplate.query(query, FilmDbRepository::makeFilm, searchString)
+                    jdbcTemplate.query(query, FilmDbRepository::makeFilm)
             );
         }
 
-        return searchedFilms.stream().distinct().sorted(Film::get)
+        searchedFilms.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
+        directorRepository.loadFilmDirectors(searchedFilms);
+        genreRepository.loadFilmGenres(searchedFilms);
+
+        return searchedFilms.stream().distinct().sorted((v1, v2) -> v2.getLikes().size() - v1.getLikes().size()).collect(Collectors.toList());
     }
-
-
 }

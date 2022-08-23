@@ -43,7 +43,9 @@ public class FilmService {
     }
 
     public Collection<Film> searchFilms(String searchString, String searchBy) {
+        log.info("Trying search with string {}, by {}", searchString, searchBy);
         return repository.searchFilms(searchString, searchBy.split(","));
+
     }
 
     public Collection<Film> getAll() {
