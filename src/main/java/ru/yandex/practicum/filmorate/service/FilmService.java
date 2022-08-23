@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.filmorate.dao.DirectorRepository;
 import ru.yandex.practicum.filmorate.dao.EventDbRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -39,6 +40,10 @@ public class FilmService {
             log.info("Movie duration must be positive, request duration = {}", film.getDuration());
             throw new ValidationException(String.format("Movie duration must be positive, request duration = %s", film.getDuration()));
         }
+    }
+
+    public Collection<Film> searchFilms(String searchString, String searchBy) {
+        return repository.searchFilms(searchString, searchBy.split(","));
     }
 
     public Collection<Film> getAll() {

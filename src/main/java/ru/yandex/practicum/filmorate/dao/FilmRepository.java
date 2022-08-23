@@ -26,4 +26,7 @@ public interface FilmRepository {
     List<Film> getCommonFilms(long userId, long friendId);
 
     Collection<Film> getMostPopularFilms(Integer count, Integer genreId, Integer year);
+
+    Collection<Film> searchFilms(String searchString, String[] searchBy);
+
 }

@@ -39,6 +39,11 @@ public class FilmController {
         return service.getFilmByDirectorSorted(directorId,sortBy);
     }
 
+    @GetMapping("/fimls/search")
+    public Collection<Film> searchFilms(@RequestParam String searchString, @RequestParam String searchBy) {
+        return service.searchFilms(searchString, searchBy);
+    }
+
     // Post requests
     @PostMapping
     public Film add(@Valid @RequestBody Film film) {
