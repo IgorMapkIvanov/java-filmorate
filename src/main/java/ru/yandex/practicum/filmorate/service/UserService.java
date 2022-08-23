@@ -4,17 +4,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.EventDbRepository;
+import ru.yandex.practicum.filmorate.dao.FilmRepository;
 import ru.yandex.practicum.filmorate.dao.UserRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.RecommendService;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -22,6 +23,8 @@ import java.util.Set;
 public class UserService {
     private final UserRepository repository;
     private final EventDbRepository eventDbRepository;
+    private final FilmRepository filmRepository;
+    private final RecommendService recommendService;
 
     public void validation(User user) {
         if (user.getId() != null && user.getId()<= 0L){
@@ -124,6 +127,17 @@ public class UserService {
             log.info("User with id = {}, not found", id);
             throw new NotFoundException(String.format("User with id = %s, not found", id));
         }
+    }
+
+    public List<Film> getRecommendations(Long id) {
+        List<Film> films = new ArrayList<>();
+        Set<Long> filmsId = recommendService.getRecommendations(id);
+        if (!filmsId.isEmpty()) {
+            for (Long i : filmsId) {
+                films.add(filmRepository.getById(i));
+            }
+        }
+        return films;
     }
 
     private void twoUserIsExistInDb(Long userId, Long friendId){
