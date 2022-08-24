@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.relational.core.query.Query;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -14,6 +15,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Repository
@@ -217,5 +220,41 @@ public class FilmDbRepository implements FilmRepository {
         films.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
         genreRepository.loadFilmGenres(films);
         return films;
+    }
+
+    @Override
+    public Collection<Film> searchFilms(String searchString, String[] searchBy) {
+        HashMap<String, String> catToDb = new HashMap<>();
+        catToDb.put("director", "d.name");
+        catToDb.put("title", "f.name");
+
+        Collection<Film> searchedFilms = new ArrayList<>();
+
+        for (String searchCriteria : searchBy) {
+            String query = "SELECT f.*, m.NAME MPA_NAME FROM FILMS f " +
+                    "LEFT JOIN MPA m on f.MPA_ID = m.ID " +
+                    "LEFT JOIN FILM_DIRECTOR fd on fd.FILM_ID = f.ID " +
+                    "LEFT JOIN DIRECTORS d on d.ID = fd.DIRECTOR_ID " +
+                    "LEFT JOIN (" +
+                    "SELECT l.FILM_ID, count(l.USER_ID) rating FROM LIKES l " +
+                    "GROUP BY l.FILM_ID" +
+                    ") l on l.FILM_ID = f.ID " +
+                    "WHERE " +
+                    catToDb.get(searchCriteria) +
+                    " ilike \'%" +
+                    searchString.toLowerCase() +
+                    "%\' " +
+                    "ORDER BY l.rating desc";
+
+            searchedFilms.addAll(
+                    jdbcTemplate.query(query, FilmDbRepository::makeFilm)
+            );
+        }
+
+        searchedFilms.forEach(x -> x.setLikes(likesRepository.loadLikes(x.getId())));
+        directorRepository.loadFilmDirectors(searchedFilms);
+        genreRepository.loadFilmGenres(searchedFilms);
+
+        return searchedFilms.stream().distinct().sorted((v1, v2) -> v2.getLikes().size() - v1.getLikes().size()).collect(Collectors.toList());
     }
 }
