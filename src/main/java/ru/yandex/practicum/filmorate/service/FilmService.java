@@ -45,7 +45,6 @@ public class FilmService {
     public Collection<Film> searchFilms(String searchString, String searchBy) {
         log.info("Trying search with string {}, by {}", searchString, searchBy);
         return repository.searchFilms(searchString, searchBy.split(","));
-
     }
 
     public Collection<Film> getAll() {
@@ -53,7 +52,6 @@ public class FilmService {
         log.info("Send data of all films.");
         return films;
     }
-
 
     public Collection<Film> getFilmByDirectorSorted(Integer id, String sort){
         if(directorRepository.getById(id) == null){

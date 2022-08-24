@@ -41,10 +41,8 @@ public class FilmController {
 
     @GetMapping("/search")
     public Collection<Film> searchFilms(@RequestParam(name = "query") String searchString, @RequestParam(name = "by") String searchBy) {
-        log.info("CONTROLLER: Trying search with string {} by {}", searchString, searchBy);
         return service.searchFilms(searchString, searchBy);
     }
-
 
     // Post requests
     @PostMapping
