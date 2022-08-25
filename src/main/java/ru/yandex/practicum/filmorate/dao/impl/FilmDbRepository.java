@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.relational.core.query.Query;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -16,7 +15,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Repository
@@ -39,7 +37,7 @@ public class FilmDbRepository implements FilmRepository {
     }
 
     @Override
-    public Collection<Film> getFilmByDirectorSorted(Integer id, String sort) {
+    public Collection<Film> getFilmByDirectorSorted(Long id, String sort) {
         String sql = "";
         if (sort.equalsIgnoreCase("year")) {
             sql = "SELECT f.*,\n" +
@@ -255,6 +253,9 @@ public class FilmDbRepository implements FilmRepository {
         directorRepository.loadFilmDirectors(searchedFilms);
         genreRepository.loadFilmGenres(searchedFilms);
 
-        return searchedFilms.stream().distinct().sorted((v1, v2) -> v2.getLikes().size() - v1.getLikes().size()).collect(Collectors.toList());
+        return searchedFilms.stream()
+                .distinct()
+                .sorted((v1, v2) -> v2.getLikes().size() - v1.getLikes().size())
+                .collect(Collectors.toList());
     }
 }

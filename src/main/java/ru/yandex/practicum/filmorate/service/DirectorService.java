@@ -22,52 +22,49 @@ public class DirectorService {
 
     public void validation(Director director){
         if (director.getId() != null && director.getId()<= 0){
-            log.info("Incorrect director ID = {}", director.getId());
+            log.info("VALIDATION: Incorrect director ID = {}", director.getId());
             throw new NotFoundException(String.format("Incorrect director ID = %s", director.getId()));
         }
-
     }
 
     public Collection<Director> getAll(){
         Collection<Director> allDirectors = directorRepository.getAll();
-        log.info("Send data of {} directors.", allDirectors.size());
+        log.info("SERVICE: Send data of {} directors.", allDirectors.size());
         return allDirectors;
     }
 
-    public Director getById(Integer id){
+    public Director getById(Long id){
         Director director = directorRepository.getById(id);
         if (director == null){
-            log.warn("Director with ID = {}, not found.", id);
+            log.info("SERVICE: Director with ID = {}, not found.", id);
             throw new NotFoundException(String.format("Director with ID = %s, not found.", id));
         }
-        log.info("Send data of director with Id = {}", id);
+        log.info("SERVICE: Send data of director with Id = {}", id);
         return director;
     }
 
     public Director add(Director director){
         validation(director);
         Director addDirector = directorRepository.add(director);
-        log.info("Add new director into storage. {}", addDirector);
+        log.info("SERVICE: Add new director into storage. {}", addDirector);
         return director;
     }
 
     public Director update(Director director){
         if(directorRepository.getById(director.getId()) == null) {
-            log.info("Director with ID = {}, not found.", director.getId());
+            log.info("SERVICE: Director with ID = {}, not found.", director.getId());
             throw new NotFoundException(String.format("Director with id = %s, not found", director.getId()));
         }
         return directorRepository.update(director);
     }
 
-    public void delete(Integer id){
+    public void delete(Long id){
         boolean isDelete = directorRepository.delete(id);
         if (isDelete){
-            log.info("Director with ID = {} was deleted.", id);
+            log.info("SERVICE: Director with ID = {} was deleted.", id);
         } else {
-            log.info("Director with id = {}, not found", id);
+            log.info("SERVICE: Director with id = {}, not found", id);
             throw new NotFoundException(String.format("Director with id = %s, not found", id));
         }
     }
-
-
 }

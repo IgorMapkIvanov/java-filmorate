@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Director implements ModelType{
-    Integer id;
+    Long id;
     @NotBlank(message = "Name cannot be empty")
     String name;
 }

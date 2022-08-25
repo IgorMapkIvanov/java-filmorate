@@ -17,17 +17,17 @@ public class MPAService {
 
     public Collection<Mpa> getAll() {
         Collection<Mpa> allMpa = mpaRepository.getAll();
-        log.info("Send data of {} MPA.", allMpa.size());
+        log.info("SERVICE: Send data of {} MPA.", allMpa.size());
         return allMpa;
     }
 
     public Mpa getById(Long id) {
         Mpa mpa = mpaRepository.getById(id);
         if (mpa == null){
-            log.info("MPA with ID = {}, not found.", id);
+            log.info("SERVICE: MPA with ID = {}, not found.", id);
             throw new NotFoundException(String.format("MPA with ID = %s, not found.", id));
         }
-        log.info("Send data of MPA with Id = {}.", id);
+        log.info("SERVICE: Send data of MPA with Id = {}.", id);
         return mpa;
     }
 }

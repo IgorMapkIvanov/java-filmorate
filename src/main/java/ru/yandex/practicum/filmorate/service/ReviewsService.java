@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.EventDbRepository;
@@ -15,6 +16,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ReviewsService {
@@ -26,6 +28,8 @@ public class ReviewsService {
     public Review addReview(Review review) {
         newReviewBaseValidation(review);
         Review addedReview = reviewDbRepository.addReview(review);
+        log.info("SERVICE: Add new review into storage: {}", addedReview);
+
         eventDbRepository.addEvent(addedReview.getUserId(),
                 addedReview.getId(),
                 "REVIEW",
@@ -34,12 +38,16 @@ public class ReviewsService {
     }
 
     public Review getReviewById(long id) throws NotFoundException {
-        return reviewDbRepository.getReviewById(id);
+        Review review = reviewDbRepository.getReviewById(id);
+        log.info("SERVICE: Send review with ID = {}.", id);
+        return review;
     }
 
     public Review updateReview(Review review) {
         updatedReviewValidation(review);
         Review updatedReview = reviewDbRepository.updateReview(review);
+        log.info("SERVICE: Update review with ID = {}.", review.getId());
+
         eventDbRepository.addEvent(updatedReview.getUserId(),
                 updatedReview.getId(),
                 "REVIEW",
@@ -49,6 +57,8 @@ public class ReviewsService {
 
     public void removeReviewById(long id) {
         Review removedReview = reviewDbRepository.removeReviewById(id);
+        log.info("SERVICE: Delete review with ID = {}.", id);
+
         eventDbRepository.addEvent(removedReview.getUserId(),
                 removedReview.getId(),
                 "REVIEW",
@@ -56,9 +66,11 @@ public class ReviewsService {
     }
 
     public Collection<Review> getAllReviews(long filmId, int numOfReviews) {
-         return (reviewDbRepository.getAllReviews(filmId, numOfReviews)).stream()
+        Collection<Review> allReview = (reviewDbRepository.getAllReviews(filmId, numOfReviews)).stream()
                 .sorted(Comparator.comparingInt(Review::getUseful).reversed())
                 .collect(Collectors.toList());
+        log.info("SERVICE: Send data of {} reviews.", allReview.size());
+        return allReview;
     }
 
     public void setLikeToReview(long reviewID, long userId) {
@@ -66,6 +78,7 @@ public class ReviewsService {
         userValidation(userId);
 
         reviewDbRepository.addLike(reviewID, userId);
+        log.info("SERVICE: User with ID = {} like review with ID = {}.", userId, reviewID);
     }
 
     public void setDislikeToReview(long reviewID, long userId) {
@@ -73,6 +86,7 @@ public class ReviewsService {
         userValidation(userId);
 
         reviewDbRepository.addDislike(reviewID, userId);
+        log.info("SERVICE: User with ID = {} dislike review with ID = {}.", userId, reviewID);
     }
 
     public void removeReviewLike(long reviewID, long userId) {
@@ -80,6 +94,7 @@ public class ReviewsService {
         userValidation(userId);
 
         reviewDbRepository.removeLike(reviewID, userId);
+        log.info("SERVICE: Remove like: user with ID = {} and review with ID = {}.", userId, reviewID);
     }
 
     public void removeReviewDislike(long reviewID, long userId) {
@@ -87,6 +102,7 @@ public class ReviewsService {
         userValidation(userId);
 
         reviewDbRepository.removeDislike(reviewID, userId);
+        log.info("SERVICE: Remove dislike: user with ID = {} and review with ID = {}.", userId, reviewID);
     }
 
     private void newReviewBaseValidation(Review review) throws ValidationException {
@@ -95,10 +111,12 @@ public class ReviewsService {
         String content = review.getContent();
 
         if(review.getIsPositive() == null) {
+            log.info("VALIDATION: Incorrect positivity of review.");
             throw new ValidationException("Incorrect positivity of review");
         }
 
         if(content == null) {
+            log.info("VALIDATION: Content can't be empty.");
             throw new ValidationException("Content can't be empty");
         }
 
@@ -149,5 +167,4 @@ public class ReviewsService {
             throw new NotFoundException("Incorrect review id:" + id);
         }
     }
-
 }

@@ -33,7 +33,7 @@ public class DirectorRepository {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    public Director getById(Integer id) {
+    public Director getById(Long id) {
         String sql = "SELECT * FROM DIRECTORS WHERE id = ?";
         List<Director> directors = jdbcTemplate.query(sql, DirectorRepository::makeDirector, id);
         if(directors.size() != 1){
@@ -50,7 +50,7 @@ public class DirectorRepository {
             stmt.setString(1, director.getName());
             return stmt;
         }, keyHolder);
-        director.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+        director.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return director;
     }
 
@@ -66,11 +66,10 @@ public class DirectorRepository {
         return null;
     }
 
-    public boolean delete(Integer id) {
+    public boolean delete(Long id) {
         String sql = "DELETE FROM DIRECTORS WHERE ID = ?";
         return jdbcTemplate.update(sql, id) > 0;
     }
-
 
     public void loadFilmDirectors(Collection<Film> films) {
         films.forEach(x -> x.setDirectors(loadDirector(x.getId())));
@@ -81,7 +80,7 @@ public class DirectorRepository {
                 "FROM DIRECTORS ds, FILM_DIRECTOR fd " +
                 "WHERE fd.FILM_ID = ? AND fd.DIRECTOR_ID = ds.ID";
         return jdbcTemplate.query(sql, DirectorRepository::makeDirector, filmId).stream()
-                .sorted(Comparator.comparing(Director::getId, Integer::compareTo))
+                .sorted(Comparator.comparing(Director::getId, Long::compareTo))
                 .collect(Collectors.toUnmodifiableList());
     }
 
@@ -91,7 +90,6 @@ public class DirectorRepository {
     }
 
     private static Director makeDirector(ResultSet rs, int rowNum) throws SQLException {
-        return new Director(rs.getInt("id"), rs.getString("name"));
+        return new Director(rs.getLong("id"), rs.getString("name"));
     }
-
 }
