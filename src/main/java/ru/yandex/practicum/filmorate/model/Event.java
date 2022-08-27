@@ -19,9 +19,9 @@ public class Event {
     @NotNull(message = "User ID must not be empty")
     protected Long userId;
     @NotNull(message = "Type must not be empty")
-    protected String eventType;
+    protected EventType eventType;
     @NotNull(message = "Operation must not be empty")
-    protected String operation;
+    protected EventOperation operation;
     @NotNull(message = "Entity ID must not be empty")
     protected Long entityId;
 }

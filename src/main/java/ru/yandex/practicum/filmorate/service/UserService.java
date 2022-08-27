@@ -8,10 +8,7 @@ import ru.yandex.practicum.filmorate.dao.FilmRepository;
 import ru.yandex.practicum.filmorate.dao.UserRepository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.RecommendService;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -103,7 +100,7 @@ public class UserService {
 
         log.info("SERVICE: User with ID = {} add friend with ID = {}.", userId, friendId);
         repository.addFriends(userId, friendId);
-        eventDbRepository.addEvent(userId, friendId, "FRIEND", "ADD");
+        eventDbRepository.addEvent(userId, friendId, EventType.FRIEND, EventOperation.ADD);
     }
 
     public void deleteFriend(Long userId, Long friendId) {
@@ -116,7 +113,7 @@ public class UserService {
 
         log.info("SERVICE: User with ID = {} delete friend with ID = {}.", userId, friendId);
         repository.deleteFriend(userId, friendId);
-        eventDbRepository.addEvent(userId, friendId, "FRIEND", "REMOVE");
+        eventDbRepository.addEvent(userId, friendId, EventType.FRIEND, EventOperation.REMOVE);
     }
 
     public void delete(Long id) {
@@ -159,8 +156,8 @@ public class UserService {
         }
     }
 
-    public Collection<Event> feed(Long id) {
-        Collection<Event> events = eventDbRepository.feed(id);
+    public Collection<Event> getFeedForUser(Long id) {
+        Collection<Event> events = eventDbRepository.getFeedForUser(id);
         log.info("SERVICE: Send data of all event by user with ID = {}.", id);
         return events;
     }
