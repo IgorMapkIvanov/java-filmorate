@@ -166,7 +166,9 @@ public class FilmDbRepository implements FilmRepository {
                 "and f.ID = l2.FILM_ID " +
                 "and l1.USER_ID = ? " +
                 "and l2.USER_ID = ?" +
-                "and m.ID = f.MPA_ID";
+                "and m.ID = f.MPA_ID " +
+                "group by f.ID " +
+                "order by count(l1.USER_ID) desc";
         return jdbcTemplate.query(sql, FilmDbRepository::makeFilm, userId, friendId);
     }
 
