@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
@@ -236,6 +237,12 @@ public class FilmDbRepository implements FilmRepository {
         Collection<Film> searchedFilms = new ArrayList<>();
 
         for (String searchCriteria : searchBy) {
+
+            if (!catToDb.containsKey(searchCriteria)) {
+                throw new ValidationException("Incorrect search category. You may search by director, title " +
+                        "or both with comma-separate");
+            }
+
             String query = "SELECT f.*, m.NAME MPA_NAME FROM FILMS f " +
                     "LEFT JOIN MPA m on f.MPA_ID = m.ID " +
                     "LEFT JOIN FILM_DIRECTOR fd on fd.FILM_ID = f.ID " +
