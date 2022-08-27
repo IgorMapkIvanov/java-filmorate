@@ -51,26 +51,25 @@ public class FilmService {
         return films;
     }
 
-    public Collection<Film> getFilmByDirectorSorted(Long id, String sort){
-        if(directorRepository.getById(id) == null){
+    public Collection<Film> getFilmByDirectorSorted(Long id, String sort) {
+        if (directorRepository.getById(id) == null) {
             log.warn("SERVICE: Director with ID = {}, not found.", id);
             throw new NotFoundException(String.format("Director with id = %s, not found", id));
         }
-        if (sort.equalsIgnoreCase("year")){
+        if (sort.equalsIgnoreCase("year")) {
             Collection<Film> films = repository.getFilmByDirectorSortedByYear(id);
             log.info("SERVICE: Send for list of films where director with ID = {}.", id);
             return films;
-        }
-        else if (sort.equalsIgnoreCase("likes")){
+        } else if (sort.equalsIgnoreCase("likes")) {
             Collection<Film> films = repository.getFilmByDirectorSortedByLikes(id);
             log.info("SERVICE: Send for list of films where director with ID = {}.", id);
             return films;
-        }
-        else {
-            log.warn("Service: Sorting by {} isn't supported",sort);
-            throw new ValidationException("Sorting by "+ sort +" isn't supported.");
+        } else {
+            log.warn("Service: Sorting by {} isn't supported", sort);
+            throw new ValidationException("Sorting by " + sort + " isn't supported.");
         }
     }
+
     public Film add(Film film) {
         validation(film);
         Film addFilm = repository.add(film);
@@ -112,7 +111,7 @@ public class FilmService {
             log.info("SERVICE: Movie with ID = {}, not found.", filmId);
             throw new NotFoundException(String.format("Movie with id = %s, not found", filmId));
         }
-        if(repository.addLike(filmId, userId)){
+        if (repository.addLike(filmId, userId)) {
             log.info("SERVICE: User with ID = {} like film with ID = {}", userId, filmId);
             eventDbRepository.addEvent(userId, filmId, "LIKE", "ADD");
         }
@@ -123,9 +122,9 @@ public class FilmService {
             log.info("SERVICE: Movie with ID = {}, not found.", filmId);
             throw new NotFoundException(String.format("Movie with id = %s, not found", filmId));
         }
-        if (!repository.deleteLike(filmId, userId)){
-            log.info("SERVICE: User with ID = {}, don't like film with ID = {}.",userId, filmId);
-            throw new NotFoundException(String.format("User with ID = %s, don't like film with ID = %s.",userId, filmId));
+        if (!repository.deleteLike(filmId, userId)) {
+            log.info("SERVICE: User with ID = {}, don't like film with ID = {}.", userId, filmId);
+            throw new NotFoundException(String.format("User with ID = %s, don't like film with ID = %s.", userId, filmId));
         } else {
             log.info("SERVICE: User with ID = {} dislike film with ID = {}", userId, filmId);
             eventDbRepository.addEvent(userId, filmId, "LIKE", "REMOVE");
@@ -134,7 +133,16 @@ public class FilmService {
 
     public Collection<Film> getPopular(Integer count, Integer genreId, Integer year) {
         log.info("SERVICE: Send {} popular films", count);
-        return repository.getMostPopularFilms(count, genreId, year);
+        if (genreId != null && year != null) {
+            return repository.getMostPopularFilmsByGenreAndYear(count, genreId, year);
+        }
+        if (genreId != null) {
+            return repository.getMostPopularFilmsByGenre(count, genreId);
+        }
+        if (year != null) {
+            return repository.getMostPopularFilmsByYear(count, year);
+        }
+        return repository.getMostPopularFilms(count);
     }
 
     public List<Film> getCommonFilms(long userId, long friendId) {
