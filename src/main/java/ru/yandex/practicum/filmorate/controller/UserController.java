@@ -51,9 +51,9 @@ public class UserController {
     }
 
     @GetMapping("/{id}/feed")
-    public Collection<Event> feed(@PathVariable Long id){
+    public Collection<Event> getFeedForUser(@PathVariable Long id){
         log.info("CONTROLLER: Request for feed for user with ID = {}.", id);
-        return userService.feed(id);
+        return userService.getFeedForUser(id);
     }
 
     // Post requests
