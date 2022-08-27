@@ -56,9 +56,20 @@ public class FilmService {
             log.warn("SERVICE: Director with ID = {}, not found.", id);
             throw new NotFoundException(String.format("Director with id = %s, not found", id));
         }
-        Collection<Film> films = repository.getFilmByDirectorSorted(id,sort);
-        log.info("SERVICE: Send for list of films where director with ID = {}.", id);
-        return films;
+        if (sort.equalsIgnoreCase("year")){
+            Collection<Film> films = repository.getFilmByDirectorSortedByYear(id);
+            log.info("SERVICE: Send for list of films where director with ID = {}.", id);
+            return films;
+        }
+        else if (sort.equalsIgnoreCase("likes")){
+            Collection<Film> films = repository.getFilmByDirectorSortedByLikes(id);
+            log.info("SERVICE: Send for list of films where director with ID = {}.", id);
+            return films;
+        }
+        else {
+            log.warn("Service: Sorting by {} isn't supported",sort);
+            throw new ValidationException("Sorting by "+ sort +" isn't supported.");
+        }
     }
     public Film add(Film film) {
         validation(film);

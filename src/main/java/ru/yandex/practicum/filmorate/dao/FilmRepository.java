@@ -8,7 +8,9 @@ import java.util.List;
 public interface FilmRepository {
     Collection<Film> getAll();
 
-    Collection<Film> getFilmByDirectorSorted(Long id, String sort);
+    Collection<Film> getFilmByDirectorSortedByYear(Long id);
+
+    Collection<Film> getFilmByDirectorSortedByLikes(Long id);
     Film add(Film film);
 
     Film update(Film film);
