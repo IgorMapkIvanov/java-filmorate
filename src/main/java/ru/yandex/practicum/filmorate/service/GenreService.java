@@ -21,17 +21,17 @@ public class GenreService {
 
     public Collection<Genre> getAll() {
         Collection<Genre> allGenres = genreRepository.getAll();
-        log.info("Send data of {} genres.", allGenres.size());
+        log.info("SERVICE: Send data of {} genres.", allGenres.size());
         return allGenres;
     }
 
     public Genre getById(Long id) {
         Genre genre = genreRepository.getById(id);
         if (genre == null){
-            log.info("Genre with ID = {}, not found.", id);
+            log.info("SERVICE: Genre with ID = {}, not found.", id);
             throw new NotFoundException(String.format("Genre with ID = %s, not found.", id));
         }
-        log.info("Send data of genre with Id = {}", id);
+        log.info("SERVICE: Send data of genre with Id = {}", id);
         return genre;
     }
 }
